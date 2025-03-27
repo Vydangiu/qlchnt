@@ -238,8 +238,7 @@ export default {
 
 .product-image {
   width: 18rem;
-  height: 19rem;
-  
+  height: 17rem;
 }
 
 .product-info h3 {

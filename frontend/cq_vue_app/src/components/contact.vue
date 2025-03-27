@@ -34,10 +34,10 @@
                     <span style="font-size: 1rem; display: inline-flex;"> Xin chào, {{ user.username }} </span>
                   
                 </a>  
-            </div>
-            <a v-else style="font-size: 2rem; padding-bottom: 10px;" href="signin">
-                <i class="fa-solid fa-user"></i>
-            </a>
+                </div>
+                <a v-else style="font-size: 2rem; padding-bottom: 10px;" href="signin">
+                    <i class="fa-solid fa-user"></i>
+                </a>
 
 
             </div>

@@ -23,9 +23,7 @@
                 </div>
             </div>
             <div class="navbar-cart-login-icon">
-                <a style="font-size: 2rem;" href=""> <i  class="fa-solid fa-bag-shopping"></i></a>
-                <a style="font-size: 2rem; padding-bottom: 10px;" href="signin"><i  class="fa-solid fa-user"></i></a>
-
+                
 
             </div>
         </div>

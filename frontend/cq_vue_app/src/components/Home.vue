@@ -192,8 +192,18 @@ export default {
       products: [],
       loading: true,
       error: null,
+      currentSlide: 1, // Bắt đầu từ slide 1
+      totalSlides: 2   // Có tổng cộng 2 slide
     };
+    
   },
+  mounted() {
+    // Chuyển tự động sang slide 2 sau 5 giây
+    setTimeout(() => {
+      this.currentSlide = 2;
+    }, 5000);
+  },
+
   methods: {
     async fetchProducts() {
       this.loading = true;
@@ -205,6 +215,11 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+    nextSlide() {
+      console.log("Before Click:", this.currentSlide);
+      this.currentSlide = this.currentSlide === 1 ? 2 : 1;
+      console.log("After Click:", this.currentSlide);
     },
     getProductImage(product) {
       if (product && product.images && product.images.length > 0) {
@@ -354,6 +369,10 @@ body{
    
   
 
+}
+.product{
+   display: flex;
+   justify-content: space-around;
 }
 
 
@@ -547,7 +566,7 @@ h3{
 }
 .img-product{
    width: 20rem;
-   height: 18rem;
+   height: 16rem;
  
 }
 
@@ -555,6 +574,9 @@ h3{
 .product-item{
    margin-top: 30px;
    padding: 5px;
+   display: inline-block;
+   margin: 0 10px;
+   flex-wrap: wrap;
 }
 
 
