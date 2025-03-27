@@ -29,7 +29,7 @@
               
                 <a class="user-hello" style="font-size: 2rem;  cursor: pointer;" @click="logout">
                     <i style="margin-top: 40px" class="fa-solid fa-user"></i>
-                    <span style="font-size: 1rem; display: inline-flex;margin-left: -20px;"> Xin chào, {{ user.username }} </span>
+                    <span style="font-size: 1rem; display: inline-flex;margin-left: 20%;"> Xin chào, {{ user.username }} </span>
                   
                 </a>  
             </div>
@@ -77,41 +77,34 @@
                 
   </div>
 </div>
-
-  <!-- product -->
 <div class="product">
-  <p class="title-product">Gợi ý cho bạn</p>
-  <div v-if="loading">Đang tải sản phẩm...</div>
-  <div v-else-if="error" class="error">{{ error }}</div>
-  <div v-else class="product-item-container">
-    <div v-for="product in products" :key="product.id" class="product-item">
-      <a :href="'/detail/' + product.id">
-        <img class="img-product" :src="product.image" :alt="product.name" />
-        <div class="cost">
-          <p class="float">{{ product.name }}<br>
-            <span style="color: red;">{{ formatPrice(product.price) }}</span>
-          </p>
-          <div class="evaluate">
-            <ul class="evaluate_star">
-              <li v-for="star in 5" :key="star">
-                <i :class="{'fa-solid fa-star': star <= product.rating, 'fa-regular fa-star': star > product.rating}" style="color: yellow;"></i>
-              </li>
-            </ul>
-            <ul class="buy">
-              <li>Đã bán {{ product.sold }}</li>
-                              </ul>
-                              
-                          </div> 
-                  </div>
-      </a>
-    </div>
-              
-              
-             
-              
-          </div>
+      <p class="title-product">Gợi ý cho bạn</p>
+      <div v-if="loading">Đang tải sản phẩm...</div>
+      <div v-else-if="error" class="error">{{ error }}</div>
+      <div v-else class="product-item-container">
+        <div v-for="product in products.slice(0, 4)" :key="product.id" class="product-item">
+          <a @click.prevent="goToProductDetail(product.id)">
+            <img class="img-product" :src="getProductImage(product)" :alt="product.name" />
+            <div class="cost">
+              <p class="float">{{ product.name }}<br>
+                <span style="color: red;">{{ formatPrice(product.price) }}</span>
+              </p>
+              <div class="evaluate">
+                <ul class="evaluate_star">
+                  <li v-for="star in 5" :key="star">
+                    <i :class="{'fa-solid fa-star': star <= product.rating, 'fa-regular fa-star': star > product.rating}" style="color: yellow;"></i>
+                  </li>
+                </ul>
+                <ul class="buy">
+                  <li>Đã bán {{ product.sold }}</li>
+                </ul>
+              </div>
+            </div>
+          </a>
         </div>
-       
+      </div>
+    </div>
+  
   <footer>
       <div class="container-footer">
           <p class="title-footer">Vì sao nên chọn Moda Casa</p>
@@ -191,109 +184,47 @@
 </template>  
 
 <script>
-import { ref, onMounted } from "vue";
 import axios from "axios";
 
-const images = import.meta.glob("@/assets/IMG/*.jpg", { eager: true });
-const imageList = Object.values(images).map((img) => img.default);
-
 export default {
-  setup() {
-    const currentSlide = ref(1);
-    const totalSlides = ref(2);
-    const products = ref([]);
-    const loading = ref(true);
-    const error = ref(null);
-    const user = ref(null);
-
-    // Lấy thông tin user từ localStorage
-    const loadUser = () => {
-      const userData = localStorage.getItem("user");
-      if (userData) {
-        user.value = JSON.parse(userData);
-      }
-    };
-
-    // Đăng xuất
-    const logout = () => {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("user");
-      user.value = null;
-      window.location.href = "/signin";
-    };
-
-    // Lấy danh sách sản phẩm từ API
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/api/products/");
-        products.value = response.data;
-      } catch (err) {
-        error.value = "Lỗi khi tải sản phẩm!";
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    // Chuyển đổi slide
-    const toggleSlide = () => {
-      currentSlide.value = (currentSlide.value % totalSlides.value) + 1;
-    };
-
-    // Xử lý khi nhấn "Mua Ngay"
-    const buyProduct = () => {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        alert("Bạn cần đăng nhập trước khi mua hàng!");
-        window.location.href = "/signin";
-      } else {
-        alert("Mua hàng thành công!");
-      }
-    };
-
-    onMounted(() => {
-      fetchProducts();
-      loadUser();
-      setTimeout(() => {
-        currentSlide.value = 2;
-      }, 5000);
-    });
-
-    return {
-      currentSlide,
-      totalSlides,
-      toggleSlide,
-      buyProduct,
-      imageList,
-      products,
-      loading,
-      error,
-      user,
-      logout,
-    };
-  },
   data() {
     return {
-      currentSlide: 1, // Bắt đầu từ slide 1
-      totalSlides: 2   // Có tổng cộng 2 slide
+      products: [],
+      loading: true,
+      error: null,
     };
   },
-  mounted() {
-    // Chuyển tự động sang slide 2 sau 5 giây
-    setTimeout(() => {
-      this.currentSlide = 2;
-    }, 5000);
-  },
   methods: {
-    nextSlide() {
-      console.log("Before Click:", this.currentSlide);
-      this.currentSlide = this.currentSlide === 1 ? 2 : 1;
-      console.log("After Click:", this.currentSlide);
-    }
-  }
+    async fetchProducts() {
+      this.loading = true;
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/api/products/");
+        this.products = response.data;
+      } catch (err) {
+        this.error = "Lỗi khi tải sản phẩm!";
+      } finally {
+        this.loading = false;
+      }
+    },
+    getProductImage(product) {
+      if (product && product.images && product.images.length > 0) {
+        let imageUrl = product.images[0].image_url;
+        return imageUrl.startsWith("http") ? imageUrl : `http://127.0.0.1:8000/product_images/${imageUrl.split('/').pop()}`;
+      }
+      return "/default-image.jpg";
+    },
+    goToProductDetail(productId) {
+      this.$router.push(`/products/${productId}`);
+    },
+    formatPrice(price) {
+      return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
+    },
+  },
+  created() {
+    this.fetchProducts();
+  },
 };
-
 </script>
-
 
 
 
@@ -301,7 +232,8 @@ export default {
 <style>
 .user-hello{
   display: inline;
-
+  position: absolute;
+  top: -70%;
 }
 main{
     padding-top: 50px;

@@ -146,20 +146,29 @@ export default {
       return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
     },
     addToCart(product) {
-      let cart = JSON.parse(localStorage.getItem("cart")) || [];
-      let existingItem = cart.find((item) => item.id === product.id);
-      
-      if (existingItem) {
-        existingItem.quantity += 1;
-      } else {
-        cart.push({ ...product, quantity: 1 });
-      }
+    const token = localStorage.getItem("access_token");
+    const user = JSON.parse(localStorage.getItem("user")); // Lấy thông tin user từ localStorage
 
-      localStorage.setItem("cart", JSON.stringify(cart));
-      this.cart = cart;
-      alert("Đã thêm vào giỏ hàng!");
-    },
-  },
+    if (!token || !user) {
+      alert("Bạn cần đăng nhập để thêm vào giỏ hàng!");
+      this.$router.push("/login");
+      return;
+    }
+
+    let cartKey = `cart_${user.id}`; // Tạo giỏ hàng riêng cho user
+    let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+    let existingItem = cart.find((item) => item.id === product.id);
+
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      cart.push({ ...product, quantity: 1 });
+    }
+
+    localStorage.setItem(cartKey, JSON.stringify(cart));
+    alert("Đã thêm vào giỏ hàng!");
+  }
+},
   created() {
     this.fetchProducts();
     this.fetchCategories();
@@ -180,11 +189,7 @@ export default {
   background-color: RGB(239, 226, 209);
   padding: 12px 0;
 }
-.pack{
-  /* display: inline-flex;
-  justify-content: space-between;
-  max-width: 100%; */
-}
+
 
 .title-product {
   
