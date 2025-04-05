@@ -22,6 +22,22 @@ class UserViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    @action(detail=True, methods=['patch'])
+    def update_category(self, request, pk=None):
+        """ Cập nhật danh mục """
+        category = self.get_object()
+        serializer = self.get_serializer(category, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Cập nhật danh mục thành công", "data": serializer.data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['delete'])
+    def delete_category(self, request, pk=None):
+        """ Xóa danh mục """
+        category = self.get_object()
+        category.delete()
+        return Response({"message": "Xóa danh mục thành công"}, status=status.HTTP_204_NO_CONTENT)
 
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -61,6 +77,23 @@ class ProductViewSet(viewsets.ModelViewSet):
         products = Product.objects.filter(price__gte=min_price, price__lte=max_price)
         serializer = self.get_serializer(products, many=True)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['patch'])
+    def update_product(self, request, pk=None):
+        """ Cập nhật sản phẩm """
+        product = self.get_object()
+        serializer = self.get_serializer(product, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Cập nhật sản phẩm thành công", "data": serializer.data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['delete'])
+    def delete_product(self, request, pk=None):
+        """ Xóa sản phẩm """
+        product = self.get_object()
+        product.delete()
+        return Response({"message": "Xóa sản phẩm thành công"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class ProductImageViewSet(viewsets.ModelViewSet):
@@ -82,6 +115,23 @@ class ProductImageViewSet(viewsets.ModelViewSet):
 
         product_image = ProductImage.objects.create(product=product, image=image)
         return Response(ProductImageSerializer(product_image).data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=True, methods=['patch'])
+    def update_image(self, request, pk=None):
+        """ Cập nhật ảnh sản phẩm """
+        product_image = self.get_object()
+        serializer = self.get_serializer(product_image, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Cập nhật ảnh thành công", "data": serializer.data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['delete'])
+    def delete_image(self, request, pk=None):
+        """ Xóa ảnh sản phẩm """
+        product_image = self.get_object()
+        product_image.delete()
+        return Response({"message": "Xóa ảnh sản phẩm thành công"}, status=status.HTTP_204_NO_CONTENT)
 
 class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
