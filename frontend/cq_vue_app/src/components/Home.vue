@@ -15,10 +15,12 @@
               <img class="logo" src="@/assets/IMG/logo1.jpg" alt="logo">
           </div>
           <div class="navbar-search">
-              <input type="text" class="search-input" placeholder="Tìm kiếm">
-              <div class="icon-search">
-                  <a class="link" href=""><i class="fa-solid fa-magnifying-glass"></i></a>
-              </div>
+            <input type="text" v-model="navbarSearch" class="search-input" placeholder="Tìm kiếm" @keyup.enter="searchFromNavbar" />
+            <div class="icon-search">
+              <a class="link" href="#" @click.prevent="searchFromNavbar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </a>
+            </div>
           </div>
           <div class="navbar-cart-login-icon">
             <a style="font-size: 2rem;" href="/cart"> 
@@ -193,7 +195,9 @@ export default {
       loading: true,
       error: null,
       currentSlide: 1, // Bắt đầu từ slide 1
-      totalSlides: 2   // Có tổng cộng 2 slide
+      totalSlides: 2 ,  // Có tổng cộng 2 slide
+      navbarSearch: "", // input thanh search navbar
+
     };
     
   },
@@ -205,6 +209,27 @@ export default {
   },
 
   methods: {
+    async searchFromNavbar() {
+  if (!this.navbarSearch.trim()) {
+    this.fetchProducts(); // nếu không nhập gì thì load lại tất cả
+    return;
+  }
+
+  this.loading = true;
+  try {
+    const response = await axios.get("http://127.0.0.1:8000/api/products/", {
+      params: {
+        search: this.navbarSearch
+      }
+    });
+    this.products = response.data;
+  } catch (err) {
+    this.error = "Lỗi khi tìm kiếm sản phẩm!";
+  } finally {
+    this.loading = false;
+  }
+},
+
     async fetchProducts() {
       this.loading = true;
       try {
