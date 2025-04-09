@@ -35,5 +35,16 @@ venv\Scripts\activate
 _Thoát môi trường ảo 
 deactivate
 
+////Thêm data và database
+VALUES  
+        (1, 'Bàn gỗ sồi', 'Bàn làm từ gỗ sồi tự nhiên, kiểu dáng hiện đại.', 2500000, 10, 5.00, NOW(), NOW()),  
+        (2, 'Ghế sofa da', 'Ghế sofa bọc da cao cấp, thiết kế sang trọng.', 5500000, 5, 10.00, NOW(), NOW()),  
+        (3, 'Tủ quần áo 4 cánh', 'Tủ gỗ MDF phủ Melamine, chống trầy xước.', 7500000, 3, 7.00, NOW(), NOW()),  
+        (1, 'Kệ sách gỗ', 'Kệ sách 5 tầng, chất liệu gỗ thông tự nhiên.', 1800000, 15, 3.00, NOW(), NOW()),  
+        (2, 'Bàn ăn 6 ghế', 'Bộ bàn ăn mặt đá, chân inox mạ vàng.', 9800000, 4, 8.00, NOW(), NOW()),  
+        (3, 'Giường ngủ gỗ óc chó', 'Giường ngủ chắc chắn, phong cách hiện đại.', 15000000, 2, 12.00, NOW(), NOW()),  
+        (1, 'Bàn trà kính cường lực', 'Bàn trà kiểu Nhật, mặt kính chịu lực.', 3200000, 6, 4.00, NOW(), NOW()),  
+        (2, 'Ghế ăn gỗ tự nhiên', 'Ghế ăn bọc nệm, chân gỗ chắc chắn.', 2200000, 8, 6.00, NOW(), NOW())
+
 
 

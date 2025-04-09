@@ -54,11 +54,31 @@ class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]  # Chỉ user đăng nhập mới có thể sửa / xóa
     authentication_classes = [JWTAuthentication]  # Xác thực bằng Token JWT
 
-    @action(detail=False, methods=['get'], url_path='category/(?P<category_id>[^/.]+)')
-    def list_by_category(self, request, category_id=None):
-        """ Lấy danh sách sản phẩm theo danh mục """
-        products = Product.objects.filter(category_id=category_id)
-        serializer = self.get_serializer(products, many=True)
+    # @action(detail=False, methods=['get'], url_path='category/(?P<category_id>[^/.]+)')
+    # def list_by_category(self, request, category_id=None):
+    #     """ Lấy danh sách sản phẩm theo danh mục """
+    #     products = Product.objects.filter(category_id=category_id)
+    #     serializer = self.get_serializer(products, many=True)
+    #     return Response(serializer.data)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.queryset
+
+        search_query = request.query_params.get("search", "")
+        category = request.query_params.get("category")
+        min_price = request.query_params.get("min_price")
+        max_price = request.query_params.get("max_price")
+
+        if search_query:
+            queryset = queryset.filter(name__icontains=search_query)
+        if category:
+            queryset = queryset.filter(category_id=category)
+        if min_price:
+            queryset = queryset.filter(price__gte=min_price)
+        if max_price:
+            queryset = queryset.filter(price__lte=max_price)
+
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], url_path='search')

@@ -139,7 +139,7 @@ export default {
       localStorage.removeItem("user");
       this.user = null;
       this.cart = [];
-      this.$router.push("/login");
+      this.$router.push("/sigin");
     },
   },
 

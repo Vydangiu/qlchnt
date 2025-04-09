@@ -151,7 +151,7 @@ export default {
 
     if (!token || !user) {
       alert("Bạn cần đăng nhập để thêm vào giỏ hàng!");
-      this.$router.push("/login");
+      this.$router.push("/signin");
       return;
     }
 
