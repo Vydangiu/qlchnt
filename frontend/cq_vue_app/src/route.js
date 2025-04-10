@@ -82,6 +82,8 @@ import contact from './components/contact.vue'
 import Blog from './components/Blog.vue'
 import shop_cart from './components/shop_cart.vue'
 import CartView from "@/components/CartView.vue"
+import ProductDetail from './components/ProductDetail.vue'
+  
 
 // --- Admin ---
 import ProductImageUploader from '@/components/ProductImageUploader.vue'
@@ -91,18 +93,20 @@ import Orders from '@/components/Orders.vue'
 import Users from '@/components/Users.vue'
 import AdminProductList from '@/components/AdminProductList.vue'
 import Login from './components/Login.vue'
+
 const routes = [
   // --- Khách hàng ---
   { name: 'Home', path: '/', component: Home },
   { name: 'signin', path: '/signin', component: signin },
   { name: 'signup', path: '/signup', component: signup },
   { name: 'detail', path: '/detail', component: detail },
+  { name: 'ProductDetail',path: '/products/:id',component: ProductDetail },
   { name: 'Product', path: '/Product', component: Product },
   { name: 'contact', path: '/contact', component: contact },
   { name: 'Blog', path: '/Blog', component: Blog },
   { name: 'shop_cart', path: '/shop_cart', component: shop_cart },
   { name: 'Cart', path: '/cart', component: CartView },
-
+  
 //   // --- Admin ---
   { path: '/login', component: Login },
 //   {
