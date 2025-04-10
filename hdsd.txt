@@ -7,6 +7,7 @@ pip install django-cors-headers  # Cài đặt CORS Headers để hỗ trợ fro
 pip install psycopg2-binary  # Cài đặt driver PostgreSQL cho Django
 pip install Pillow  # Cài đặt Pillow để xử lý ảnh trong ImageField
 npm install vite --save-dev # Cài đặt vite để chạy frontend trong project
+npm install pinia
 
 // Nếu bị lỗi pip thì phải cài pip
 python -m ensurepip --upgrade
