@@ -23,7 +23,21 @@
                 </div>
             </div>
             <div class="navbar-cart-login-icon">
-                
+                <a style="font-size: 2rem;" href="/cart"> 
+                <i class="fa-solid fa-bag-shopping"></i>
+                </a>
+            
+                 <div v-if="user" class="user-info">
+              
+                    <a class="user-hello" style="font-size: 2rem;  cursor: pointer;" @click="logout">
+                        <i style="margin-top: 40px" class="fa-solid fa-user"></i>
+                        <span style="font-size: 1rem; display: inline-flex;"> Xin chào, {{ user.username }} </span>
+                    
+                    </a>  
+                </div>
+                <a v-else style="font-size: 2rem; padding-bottom: 10px;" href="signin">
+                    <i class="fa-solid fa-user"></i>
+                </a>
 
             </div>
         </div>

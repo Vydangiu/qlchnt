@@ -259,7 +259,7 @@ export default {
 }
 
 .cart-button {
-  margin-top: 10px;
+  
   padding: 8px;
   background-color: #ff6600;
   color: white;

@@ -83,7 +83,7 @@ import Blog from './components/Blog.vue'
 import shop_cart from './components/shop_cart.vue'
 import CartView from "@/components/CartView.vue"
 import ProductDetail from './components/ProductDetail.vue'
-  
+
 
 // --- Admin ---
 import ProductImageUploader from '@/components/ProductImageUploader.vue'
@@ -95,107 +95,107 @@ import AdminProductList from '@/components/AdminProductList.vue'
 import Login from './components/Login.vue'
 
 const routes = [
-  // --- Khách hàng ---
-  { name: 'Home', path: '/', component: Home },
-  { name: 'signin', path: '/signin', component: signin },
-  { name: 'signup', path: '/signup', component: signup },
-  { name: 'detail', path: '/detail', component: detail },
-  { name: 'ProductDetail',path: '/products/:id',component: ProductDetail },
-  { name: 'Product', path: '/Product', component: Product },
-  { name: 'contact', path: '/contact', component: contact },
-  { name: 'Blog', path: '/Blog', component: Blog },
-  { name: 'shop_cart', path: '/shop_cart', component: shop_cart },
-  { name: 'Cart', path: '/cart', component: CartView },
-  
-//   // --- Admin ---
-  { path: '/login', component: Login },
-//   {
-//     path: '/admin',
-//     component: Dashboard, // Dashboard làm layout
-//     children: [
-//       { path: '', redirect: 'admin/dashboard' },
-//      // Không có component riêng, sẽ hiển thị nội dung của Dashboard
-//       { path: 'products', component: AdminProductList },
-//       { path: 'categories', component: Categories },
-//       { path: 'orders', component: Orders },
-//       { path: 'users', component: Users },
-//     ]
-//   }
-// ]
+    // --- Khách hàng ---
+    { name: 'Home', path: '/', component: Home },
+    { name: 'signin', path: '/signin', component: signin },
+    { name: 'signup', path: '/signup', component: signup },
+    { name: 'detail', path: '/detail', component: detail },
+    { name: 'ProductDetail', path: '/products/:id', component: ProductDetail },
+    { name: 'Product', path: '/Product', component: Product },
+    { name: 'contact', path: '/contact', component: contact },
+    { name: 'Blog', path: '/Blog', component: Blog },
+    { name: 'shop_cart', path: '/shop_cart', component: shop_cart },
+    { name: 'Cart', path: '/cart', component: CartView },
 
-// const router = createRouter({
-//   history: createWebHistory(),
-//   routes,
-// })
+    //   // --- Admin ---
+    { path: '/login', component: Login },
+    //   {
+    //     path: '/admin',
+    //     component: Dashboard, // Dashboard làm layout
+    //     children: [
+    //       { path: '', redirect: 'admin/dashboard' },
+    //      // Không có component riêng, sẽ hiển thị nội dung của Dashboard
+    //       { path: 'products', component: AdminProductList },
+    //       { path: 'categories', component: Categories },
+    //       { path: 'orders', component: Orders },
+    //       { path: 'users', component: Users },
+    //     ]
+    //   }
+    // ]
 
-// // --- Middleware bảo vệ admin ---
-// router.beforeEach((to, from, next) => {
-//   const store = useAuthStore()
-//   const isAdminRoute = to.path.startsWith('/admin')
+    // const router = createRouter({
+    //   history: createWebHistory(),
+    //   routes,
+    // })
 
-//   if (isAdminRoute && !store.token) {
-//     next('/login')
-//   } else {
-//     next()
-//   }
-// })
+    // // --- Middleware bảo vệ admin ---
+    // router.beforeEach((to, from, next) => {
+    //   const store = useAuthStore()
+    //   const isAdminRoute = to.path.startsWith('/admin')
 
-// export default router
-// Admin routes
-{
-  path: '/admin/dashboard',
-  name: 'Dashboard',
-  component: Dashboard,
-  meta: { requiresAuth: true }, // Yêu cầu xác thực
-},
-{
-  path: '/admin/products',
-  name: 'AdminProductList',
-  component: AdminProductList,
-  meta: { requiresAuth: true }, // Yêu cầu xác thực
-},
-{
-  path: '/admin/product-images',
-  name: 'ProductImageUploader',
-  component: ProductImageUploader,
-  meta: { requiresAuth: true }, // Yêu cầu xác thực
-},
-{
-  path: '/admin/categories',
-  name: 'Categories',
-  component: Categories,
-  meta: { requiresAuth: true }, // Yêu cầu xác thực
-},
-{
-  path: '/admin/orders',
-  name: 'Orders',
-  component: Orders,
-  meta: { requiresAuth: true }, // Yêu cầu xác thực
-},
-{
-  path: '/admin/users',
-  name: 'Users',
-  component: Users,
-  meta: { requiresAuth: true }, // Yêu cầu xác thực
-},
+    //   if (isAdminRoute && !store.token) {
+    //     next('/login')
+    //   } else {
+    //     next()
+    //   }
+    // })
+
+    // export default router
+    // Admin routes
+    {
+        path: '/admin/dashboard',
+        name: 'Dashboard',
+        component: Dashboard,
+        meta: { requiresAuth: true }, // Yêu cầu xác thực
+    },
+    {
+        path: '/admin/products',
+        name: 'AdminProductList',
+        component: AdminProductList,
+        meta: { requiresAuth: true }, // Yêu cầu xác thực
+    },
+    {
+        path: '/admin/product-images',
+        name: 'ProductImageUploader',
+        component: ProductImageUploader,
+        meta: { requiresAuth: true }, // Yêu cầu xác thực
+    },
+    {
+        path: '/admin/categories',
+        name: 'Categories',
+        component: Categories,
+        meta: { requiresAuth: true }, // Yêu cầu xác thực
+    },
+    {
+        path: '/admin/orders',
+        name: 'Orders',
+        component: Orders,
+        meta: { requiresAuth: true }, // Yêu cầu xác thực
+    },
+    {
+        path: '/admin/users',
+        name: 'Users',
+        component: Users,
+        meta: { requiresAuth: true }, // Yêu cầu xác thực
+    },
 
 ];
 
 const router = createRouter({
-history: createWebHistory(import.meta.env.BASE_URL),
-routes,
+    history: createWebHistory(import.meta.env.BASE_URL),
+    routes,
 });
 
 router.beforeEach((to, from, next) => {
-const authStore = useAuthStore();
-const requiresAuth = to.meta.requiresAuth;
+    const authStore = useAuthStore();
+    const requiresAuth = to.meta.requiresAuth;
 
-if (requiresAuth && !authStore.isAuthenticated) {
-  // Nếu route yêu cầu xác thực và chưa đăng nhập, chuyển hướng đến trang đăng nhập
-  next('/login');
-} else {
-  next(); // Cho phép truy cập route
-}
+    if (requiresAuth && !authStore.isAuthenticated) {
+        // Nếu route yêu cầu xác thực và chưa đăng nhập, chuyển hướng đến trang đăng nhập
+        next('/login');
+    } else {
+        next(); // Cho phép truy cập route
+    }
 });
 
 export default router;

@@ -14,7 +14,7 @@
                     </div>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding: 0 28px" class="forgot">
-                    <a style="color: #807373; text-decoration: underline; font-size: 1rem;" href="#">Quên mật khẩu</a>
+                    
                     <a style="color: #807373; text-decoration: underline; font-size: 1rem;" href="signup">Đăng kí tài khoản</a>
 
                 </div>

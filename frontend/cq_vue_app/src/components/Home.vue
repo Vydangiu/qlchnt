@@ -38,7 +38,11 @@
             <a v-else style="font-size: 2rem; padding-bottom: 10px;" href="signin">
                 <i class="fa-solid fa-user"></i>
             </a>
+
+            
+            
           </div>
+         
 
 
 
@@ -50,6 +54,10 @@
 
   <!-- banner -->
 <div class="banner">
+  <div class="button-signup">
+                
+                <a href="">Signup</a>
+                </div>
     <section class="slider">
       <div class="slides">
         <img v-show="currentSlide === 1" class="banner-1" src="@/assets/IMG/bann1.jpg" alt="Hình 1">
@@ -67,20 +75,22 @@
                         <img class="img-demo" src="@/assets/IMG/ban-an.jpg" alt="Hình 1">
                     </div>
                     <div class="demo-product-item">
-                        <img class="img-demo" src="@/assets/IMG/ban-an.jpg" alt="Hình 1">
+                        <img class="img-demo" src="@/assets/IMG/ghe1.jpg" alt="Hình 1">
                     </div>
                     <div class="demo-product-item">
                     <div class="box"><h3> Moda Casa</h3>  Nâng tầm phong cách sống với nội thất đẳng cấp, nơi mọi chi tiết đẳng cấp đều tạo nên sự khác biệt</div>
                      </div>
                     <div class="demo-product-item">
-                        <img class="img-demo" src="@/assets/IMG/ban-an.jpg" alt="Hình 1">
+                        <img class="img-demo" src="@/assets/IMG/ghe2.jpg" alt="Hình 1">
                     </div>
                    
                 
   </div>
 </div>
+<p class="title-product1">Gợi ý cho bạn</p>
 <div class="product">
-      <p class="title-product">Gợi ý cho bạn</p>
+    
+      
       <div v-if="loading">Đang tải sản phẩm...</div>
       <div v-else-if="error" class="error">{{ error }}</div>
       <div v-else class="product-item-container">
@@ -92,11 +102,16 @@
                 <span style="color: red;">{{ formatPrice(product.price) }}</span>
               </p>
               <div class="evaluate">
-                <ul class="evaluate_star">
+                <!-- <ul class="evaluate_star">
                   <li v-for="star in 5" :key="star">
                     <i :class="{'fa-solid fa-star': star <= product.rating, 'fa-regular fa-star': star > product.rating}" style="color: yellow;"></i>
                   </li>
-                </ul>
+                </ul> -->
+                
+                  <button class="cart-button" @click.stop="addToCart(product)">
+                    🛒 Thêm vào giỏ
+                 </button>
+                
                 <ul class="buy">
                   <li>Đã bán {{ product.sold }}</li>
                 </ul>
@@ -180,9 +195,7 @@
        
 </footer>
 </main> 
-<div>
-  <button @click="buyProduct">Mua ngay</button>
-</div>
+
 </template>  
 
 <script>
@@ -259,9 +272,33 @@ export default {
     formatPrice(price) {
       return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
     },
+    addToCart(product) {
+    const token = localStorage.getItem("access_token");
+    const user = JSON.parse(localStorage.getItem("user")); // Lấy thông tin user từ localStorage
+
+    if (!token || !user) {
+      alert("Bạn cần đăng nhập để thêm vào giỏ hàng!");
+      this.$router.push("/signin");
+      return;
+    }
+
+    let cartKey = `cart_${user.id}`; // Tạo giỏ hàng riêng cho user
+    let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+    let existingItem = cart.find((item) => item.id === product.id);
+
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      cart.push({ ...product, quantity: 1 });
+    }
+
+    localStorage.setItem(cartKey, JSON.stringify(cart));
+    alert("Đã thêm vào giỏ hàng!");
+  }
   },
   created() {
     this.fetchProducts();
+    
   },
 };
 </script>
@@ -270,6 +307,26 @@ export default {
 
 
 <style>
+.button-signup{
+  display: flex;
+  justify-content: flex-end;
+  text-decoration: underline;
+}
+
+.cart-button{
+  
+  padding: 8px;
+    background-color: #ff6600;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+.cart-button:hover {
+  background-color: #ff4500;
+}
 .user-hello{
   display: inline;
   position: absolute;
@@ -398,6 +455,7 @@ body{
 .product{
    display: flex;
    justify-content: space-around;
+   margin-top: 2rem;
 }
 
 
@@ -575,16 +633,18 @@ h3{
 
 /* product */
 
-.product {
-   margin-top: 70px;
-   
-}
 
 
-.title-product{
-   margin-bottom: 0;
-   background-color: rgb(234, 206, 172);
-   padding: 0.5rem;
+
+.title-product1{
+  margin-bottom: 0;
+    background-color: rgb(234, 206, 172);
+    padding: 0.5rem 3rem;
+    font-size: 2rem;
+    margin-top: 3rem;
+
+
+
    
 
 
