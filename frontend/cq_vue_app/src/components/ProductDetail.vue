@@ -157,14 +157,14 @@
   }
   
   .product-image{
-    width: 25rem;
-    height: 30rem;
+    width: 35rem;
+    height: 35rem;
   }
   
   .product-info {
-    max-width: 25rem;
+    max-width: 35rem;
     padding: 0 2rem;
-    height: 30rem;
+    height: 35rem;
   }
   
   .price {
