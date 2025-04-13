@@ -174,6 +174,11 @@ export default {
     this.fetchCategories();
     this.cart = JSON.parse(localStorage.getItem("cart")) || [];
   },
+   watch: {
+    $route(to, from) {
+      this.fetchProducts();
+    }
+  }
 };
 </script>
 <style>
