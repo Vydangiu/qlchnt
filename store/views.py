@@ -12,7 +12,14 @@ from store.models import Order
 from store.serializers import OrderSerializer , CheckoutSerializer
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
-
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.db.models import Q
+from .models import Product
+from .serializers import ProductSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -38,15 +45,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
         category = self.get_object()
         category.delete()
         return Response({"message": "Xóa danh mục thành công"}, status=status.HTTP_204_NO_CONTENT)
-
-from rest_framework import viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.db.models import Q
-from .models import Product
-from .serializers import ProductSerializer
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
