@@ -62,7 +62,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     #     return Response(serializer.data)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.queryset
+        queryset = Product.objects.all()
 
         search_query = request.query_params.get("search", "")
         category = request.query_params.get("category")
