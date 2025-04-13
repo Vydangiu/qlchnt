@@ -7,6 +7,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated  # hoặc IsAdminUser nếu cần bảo mật
+
 
 User = get_user_model()
 
@@ -96,3 +99,8 @@ class LogoutView(APIView):
     def get(self, request):
         logout(request)
         return redirect('/')
+    
+class UserListAPIView(ListAPIView):
+    queryset = User.objects.filter(role="customer")
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
