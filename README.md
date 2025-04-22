@@ -38,6 +38,31 @@ DATABASES = {
 python manage.py migrate  
 python manage.py runserver
 
+## Tạo Superuser để truy cập trang admin
+Để quản lý sản phẩm, danh mục, và các chức năng khác trong trang admin của Django, em cần tạo một **superuser**:
+
+1. **Chạy lệnh sau để tạo superuser**:
+   ```bash
+   python manage.py createsuperuser
+
+2. Điền thông tin cho superuser khi hệ thống yêu cầu:
+
+Tên người dùng (username)
+
+Email (email)
+
+Mật khẩu (password)
+Chú ý rằng mật khẩu phải được nhập hai lần và phải đáp ứng các yêu cầu bảo mật (ví dụ: có ít nhất 8 ký tự, bao gồm cả chữ và số, v.v.).
+
+3. Chạy server Django: Sau khi tạo superuser thành công, người quản lý có thể chạy lại server Django:
+
+python manage.py runserver
+
+4. Truy cập trang admin: Người quản lý có thể truy cập vào trang admin của Django qua URL:
+
+http://127.0.0.1:8000/admin/
+
+Đăng nhập với thông tin superuser đã tạo.
 ```
 ## Inset dữ liệu vào PostgreSQL
 Vào postgres --> Chuột phải cuahangnoithat --> Query Tool 
