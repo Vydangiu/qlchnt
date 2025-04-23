@@ -1,96 +1,100 @@
 <template>
-  <header class="menu-toggle">
-    <div class="navbar">
-      <div class="navbar-link">
-        <ul class="navbar-link-item" :class="{ 'active': isOpen }">
-          <li class="item-link"><a class="link" href="/">Trang chủ</a></li>
-          <li class="item-link"><a class="link" href="/Product">Sản phẩm</a></li>
-          <li class="item-link"><a class="link" href="/Blog">About</a></li>
-          <li class="item-link"><a class="link" href="/contact">Liên hệ</a></li>
-        </ul>
-      </div>
-      <div class="navbar-logo">
-        <img class="logo" src="@/assets/IMG/logo1.jpg" alt="logo">
-      </div>
-      <div class="navbar-search">
-        <input type="text" class="search-input" placeholder="Tìm kiếm">
-        <div class="icon-search">
-          <a class="link" href="#"><i class="fa-solid fa-magnifying-glass"></i></a>
-        </div>
-      </div>
-      <div class="navbar-cart-login-icon">
-        <a style="font-size: 2rem;" href="/cart">
-          <i class="fa-solid fa-bag-shopping"></i>
-        </a>
-        <div v-if="user" class="user-info">
-          <a class="user-hello" style="font-size: 2rem; cursor: pointer;" @click="logout">
-            <i style="margin-top: 40px" class="fa-solid fa-user"></i>
-            <span style="font-size: 1rem; display: inline-flex;">Xin chào, {{ user.username }}</span>
-          </a>
-        </div>
-        <a v-else style="font-size: 2rem; padding-bottom: 10px;" href="/signin">
-          <i class="fa-solid fa-user"></i>
-        </a>
-      </div>
-    </div>
-    <div class="hamburger" @click="toggleMenu">☰</div>
-  </header>
-
   <div class="checkout-container">
-    <h1>Thanh Toán</h1>
-    <div v-if="!user" class="login-prompt">
-      <p>Vui lòng đăng nhập để tiếp tục thanh toán.</p>
-      <router-link to="/signin" class="login-link">Đăng nhập</router-link>
+    <h1 class="checkout-title">🛒 Thanh Toán</h1>
+
+    <!-- Thông báo giỏ hàng trống -->
+    <div v-if="cart.length === 0" class="empty-cart">
+      <p>Giỏ hàng của bạn đang trống!</p>
+      <router-link to="/Product" class="back-to-shop">🛍️ Tiếp tục mua sắm</router-link>
     </div>
-    <div v-else>
+
+    <!-- Hiển thị giỏ hàng và form thanh toán -->
+    <div v-else class="checkout-content">
+      <!-- Bảng giỏ hàng -->
+      <div class="cart-section">
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>Sản phẩm</th>
+              <th>Giá</th>
+              <th>Số lượng</th>
+              <th>Tổng</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in cart" :key="item.id">
+              <td class="cart-item">
+                <img :src="getProductImage(item)" alt="Product image" class="cart-image">
+                <span>{{ item.name }}</span>
+              </td>
+              <td>{{ formatPrice(item.price) }}</td>
+              <td class="quantity-controls">
+                <button @click="updateQuantity(item, -1)" :disabled="item.quantity <= 1">➖</button>
+                <span>{{ item.quantity }}</span>
+                <button @click="updateQuantity(item, 1)">➕</button>
+              </td>
+              <td>{{ formatPrice(item.price * item.quantity) }}</td>
+              <td>
+                <button @click="confirmRemove(item)" class="remove-button">❌ Xóa</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Form thông tin thanh toán -->
       <div class="checkout-form">
-        <h2>Thông tin giao hàng</h2>
+        <h3>Thông tin thanh toán</h3>
         <div class="form-group">
-          <label for="fullName">Họ và tên</label>
-          <input type="text" id="fullName" v-model="form.fullName" required />
+          <label for="name">Tên người nhận:</label>
+          <input
+            type="text"
+            id="name"
+            v-model="name"
+            placeholder="Nhập tên người nhận"
+            required
+          />
         </div>
         <div class="form-group">
-          <label for="address">Địa chỉ giao hàng</label>
-          <input type="text" id="address" v-model="form.address" required />
+          <label for="phone_number">Số điện thoại:</label>
+          <input
+            type="tel"
+            id="phone_number"
+            v-model="phoneNumber"
+            placeholder="Nhập số điện thoại"
+            required
+          />
         </div>
         <div class="form-group">
-          <label for="phone">Số điện thoại</label>
-          <input type="tel" id="phone" v-model="form.phone" required />
+          <label for="shipping_address">Địa chỉ giao hàng:</label>
+          <input
+            type="text"
+            id="shipping_address"
+            v-model="shippingAddress"
+            placeholder="Nhập địa chỉ giao hàng"
+            required
+          />
         </div>
         <div class="form-group">
-          <label for="paymentMethod">Phương thức thanh toán</label>
-          <select id="paymentMethod" v-model="form.paymentMethod" required>
+          <label for="note">Ghi chú:</label>
+          <textarea
+            id="note"
+            v-model="note"
+            placeholder="Ghi chú cho đơn hàng (nếu có)"
+            rows="3"
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label for="payment_method">Phương thức thanh toán:</label>
+          <select id="payment_method" v-model="paymentMethod">
             <option value="cod">Thanh toán khi nhận hàng (COD)</option>
-            <option value="banking">Chuyển khoản ngân hàng</option>
+            <!-- <option value="bank_transfer">Chuyển khoản ngân hàng</option> -->
           </select>
         </div>
-        <div class="form-group">
-          <label for="note">Ghi chú (tùy chọn)</label>
-          <textarea id="note" v-model="form.note"></textarea>
-        </div>
-      </div>
-
-      <div class="order-summary">
-        <h2>Tóm tắt đơn hàng</h2>
-        <!-- <pre v-if="cart.length">Dữ liệu giỏ hàng: {{ cart }}</pre> -->
-        <div v-if="cart.length === 0" class="empty-cart">
-          <p>Giỏ hàng trống!</p>
-          <router-link to="/Product">Tiếp tục mua sắm</router-link>
-        </div>
-        <div v-else>
-          <div v-for="item in cart" :key="item.id" class="cart-item">
-            <img :src="getProductImage(item)" :alt="item.name" class="cart-item-image" />
-            <div class="cart-item-details">
-              <p>{{ item.name }}</p>
-              <p>Số lượng: {{ item.quantity }}</p>
-              <p>Giá: {{ formatPrice(item.price * item.quantity) }}</p>
-            </div>
-          </div>
-          <div class="total">
-            <strong>Tổng cộng:</strong> {{ formatPrice(totalPrice) }}
-          </div>
-          <button @click="placeOrder" class="place-order-button">Đặt hàng</button>
-        </div>
+        <h2 class="total-price">Tổng tiền: {{ formatPrice(totalPrice) }}</h2>
+        <button @click="confirmCheckout" class="confirm-button">✅ Xác nhận đơn hàng</button>
+        <p v-if="error" class="error">{{ error }}</p>
       </div>
     </div>
   </div>
@@ -100,18 +104,18 @@
 import axios from "axios";
 
 export default {
+  name: "CheckoutView",
   data() {
     return {
-      user: JSON.parse(localStorage.getItem("user")) || null,
       cart: [],
-      form: {
-        fullName: "",
-        address: "",
-        phone: "",
-        paymentMethod: "cod", // Giá trị mặc định
-        note: "",
-      },
-      isOpen: false,
+      user: null,
+      name: "",
+      phoneNumber: "",
+      shippingAddress: "",
+      note: "",
+      paymentMethod: "cod",
+      error: null,
+      productId: null,
     };
   },
   computed: {
@@ -120,100 +124,189 @@ export default {
     },
   },
   methods: {
-    toggleMenu() {
-      this.isOpen = !this.isOpen;
-    },
     getProductImage(product) {
-      if (product && product.images && product.images.length > 0) {
-        let imageUrl = product.images[0].image_url;
+      if (product?.images?.length > 0) {
+        const imageUrl = product.images[0].image_url;
         return imageUrl.startsWith("http") ? imageUrl : `http://127.0.0.1:8000/product_images/${imageUrl.split('/').pop()}`;
       }
       return "/default-image.jpg";
     },
+
     formatPrice(price) {
       return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
     },
-    async fetchProductForCheckout(productId) {
-      try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/products/${productId}/`);
-        const product = response.data;
-        this.cart = [{ ...product, quantity: 1 }];
-        localStorage.setItem(`cart_${this.user.id}`, JSON.stringify(this.cart));
-        console.log("Sản phẩm được thêm từ API:", this.cart);
-      } catch (error) {
-        console.error("Lỗi khi lấy sản phẩm:", error);
-        alert("Không thể tải sản phẩm!");
+
+    updateQuantity(item, change) {
+      const index = this.cart.findIndex((p) => p.id === item.id);
+      if (index === -1) return;
+
+      const newQuantity = this.cart[index].quantity + change;
+      if (newQuantity <= 0) {
+        this.confirmRemove(item);
+      } else {
+        this.cart[index].quantity = newQuantity;
+        this.saveCart();
+        alert(`Số lượng đã được cập nhật: ${newQuantity}`);
       }
     },
-    async placeOrder() {
-      if (!this.form.fullName || !this.form.address || !this.form.phone || !this.form.paymentMethod) {
-        alert("Vui lòng điền đầy đủ thông tin giao hàng và phương thức thanh toán!");
-        return;
+
+    confirmRemove(item) {
+      if (confirm(`Bạn có chắc chắn muốn xóa "${item.name}" khỏi giỏ hàng không?`)) {
+        this.cart = this.cart.filter((p) => p.id !== item.id);
+        this.saveCart();
+        alert("Sản phẩm đã được xóa!");
+      }
+    },
+
+    saveCart() {
+      if (!this.user) return;
+      try {
+        localStorage.setItem(`cart_${this.user.id}`, JSON.stringify(this.cart));
+      } catch (error) {
+        console.error("Lỗi khi lưu giỏ hàng:", error);
+        this.error = "Không thể lưu giỏ hàng. Vui lòng kiểm tra trình duyệt.";
+      }
+    },
+
+    async syncCartWithBackend() {
+      const token = localStorage.getItem("access_token");
+      if (!token || !this.user) {
+        this.error = "Bạn cần đăng nhập để thanh toán!";
+        this.$router.push("/signin");
+        return false;
       }
 
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        alert("Bạn cần đăng nhập để đặt hàng!");
+      try {
+        let cartResponse = await axios.get("http://127.0.0.1:8000/api/carts/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        let cartId;
+        if (Array.isArray(cartResponse.data) && cartResponse.data.length > 0) {
+          cartId = cartResponse.data[0].id;
+        } else if (cartResponse.data?.id) {
+          cartId = cartResponse.data.id;
+        } else {
+          cartResponse = await axios.post(
+            "http://127.0.0.1:8000/api/carts/",
+            { user: this.user.id },
+            { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
+          );
+          cartId = cartResponse.data.id;
+        }
+
+        if (!cartId) throw new Error("Không thể lấy hoặc tạo giỏ hàng!");
+
+        const cartItemsResponse = await axios.get("http://127.0.0.1:8000/api/cart-items/", {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { cart: cartId },
+        });
+
+        const cartItems = cartItemsResponse.data;
+        for (const item of cartItems) {
+          await axios.delete(`http://127.0.0.1:8000/api/cart-items/${item.id}/`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        }
+
+        for (const item of this.cart) {
+          await axios.post(
+            "http://127.0.0.1:8000/api/cart-items/",
+            {
+              cart: cartId,
+              product: item.id,
+              quantity: item.quantity,
+            },
+            { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
+          );
+        }
+        return true;
+      } catch (error) {
+        console.error("Lỗi khi đồng bộ giỏ hàng:", error.response?.data || error.message);
+        this.error = "Không thể đồng bộ giỏ hàng với hệ thống.";
+        return false;
+      }
+    },
+
+    async confirmCheckout() {
+      this.error = null;
+
+      if (!this.user) {
+        this.error = "Vui lòng đăng nhập để thanh toán!";
         this.$router.push("/signin");
         return;
       }
 
-      if (this.cart.length === 0) {
-        alert("Giỏ hàng trống, không thể đặt hàng!");
+      if (!this.name.trim()) {
+        this.error = "Vui lòng nhập tên người nhận!";
         return;
       }
 
+      if (!this.phoneNumber.trim()) {
+        this.error = "Vui lòng nhập số điện thoại!";
+        return;
+      }
+
+      if (!this.shippingAddress.trim()) {
+        this.error = "Vui lòng nhập địa chỉ giao hàng!";
+        return;
+      }
+
+      if (this.cart.length === 0) {
+        this.error = "Giỏ hàng của bạn đang trống!";
+        return;
+      }
+
+      const synced = await this.syncCartWithBackend();
+      if (!synced) return;
+
+      const token = localStorage.getItem("access_token");
       try {
-        const orderData = {
-          user: this.user.id,
-          shipping_address: `${this.form.fullName}, ${this.form.address}, ${this.form.phone}`, // Kết hợp thông tin giao hàng
-          payment_method: this.form.paymentMethod,
-          items: this.cart.map((item) => ({
-            product: item.id,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-          total_price: this.totalPrice,
+        // Tạo payload và chỉ thêm product_id nếu nó tồn tại
+        const payload = {
+          name: this.name,
+          phone_number: this.phoneNumber,
+          shipping_address: this.shippingAddress,
+          note: this.note,
+          payment_method: this.paymentMethod,
         };
+        if (this.productId) {
+          payload.product_id = this.productId;
+        }
 
-        console.log("Dữ liệu gửi lên API:", orderData);
+        const response = await axios.post(
+          "http://127.0.0.1:8000/api/orders/checkout/",
+          payload,
+          {
+            headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          }
+        );
 
-        const response = await axios.post("http://127.0.0.1:8000/api/orders/", orderData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        console.log("Phản hồi từ API:", response.data);
-        alert("Đặt hàng thành công!");
+        alert("Thanh toán thành công! Đơn hàng của bạn đã được tạo.");
         localStorage.removeItem(`cart_${this.user.id}`);
-        this.cart = [];
         this.$router.push("/orders");
       } catch (error) {
-        console.error("Lỗi khi đặt hàng:", error.response?.data || error);
-        alert("Có lỗi xảy ra khi đặt hàng: " + JSON.stringify(error.response?.data));
+        console.error("Lỗi khi thanh toán:", error.response?.data || error.message);
+        this.error = error.response?.data?.detail || "Có lỗi xảy ra khi thanh toán.";
       }
-    },
-    logout() {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("user");
-      this.user = null;
-      this.cart = [];
-      this.$router.push("/signin");
     },
   },
   created() {
+    this.user = JSON.parse(localStorage.getItem("user")) || null;
     if (this.user) {
-      const cartKey = `cart_${this.user.id}`;
-      this.cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-      console.log("Giỏ hàng trong Checkout.vue:", this.cart);
-
-      const productId = this.$route.params.productId;
-      if (productId && this.cart.length === 0) {
-        this.fetchProductForCheckout(productId);
+      this.cart = JSON.parse(localStorage.getItem(`cart_${this.user.id}`)) || [];
+      this.name = this.user.username || "";
+      // Chuyển đổi productId thành số nguyên
+      this.productId = this.$route.params.productId ? parseInt(this.$route.params.productId) : null;
+      console.log("productId:", this.productId); // Debug giá trị productId
+      if (this.productId) {
+        const productInCart = this.cart.find(item => item.id === this.productId);
+        if (!productInCart) {
+          this.error = "Sản phẩm không có trong giỏ hàng!";
+        }
       }
     } else {
+      this.error = "Vui lòng đăng nhập để tiếp tục!";
       this.$router.push("/signin");
     }
   },
@@ -222,21 +315,139 @@ export default {
 
 <style scoped>
 .checkout-container {
-  max-width: 1200px;
-  margin: 20px auto;
+  max-width: 900px;
+  margin: 0 auto;
   padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.checkout-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  color: #333;
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.empty-cart p {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.back-to-shop {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 1.1rem;
+}
+
+.back-to-shop:hover {
+  text-decoration: underline;
+}
+
+.checkout-content {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 20px;
 }
 
-.checkout-form,
-.order-summary {
-  flex: 1;
-  min-width: 300px;
+.cart-section {
+  overflow-x: auto;
+}
+
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.cart-table th,
+.cart-table td {
+  padding: 12px 15px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.cart-table th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+  color: #333;
+}
+
+.cart-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.cart-image {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.quantity-controls button {
+  padding: 5px 10px;
+  font-size: 1rem;
+  border: none;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.quantity-controls button:hover {
+  background-color: #e0e0e0;
+}
+
+.quantity-controls button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.quantity-controls span {
+  font-size: 1.1rem;
+}
+
+.remove-button {
+  padding: 5px 10px;
+  font-size: 1rem;
+  border: none;
+  background-color: #ff4d4d;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.remove-button:hover {
+  background-color: #e60000;
+}
+
+.checkout-form {
+  background-color: #fff;
   padding: 20px;
-  border: 1px solid #ddd;
   border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.checkout-form h3 {
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+  color: #333;
 }
 
 .form-group {
@@ -246,72 +457,57 @@ export default {
 .form-group label {
   display: block;
   margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 8px;
+  padding: 10px;
+  font-size: 1rem;
   border: 1px solid #ddd;
   border-radius: 4px;
+  box-sizing: border-box;
 }
 
-.cart-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
+.form-group textarea {
+  resize: vertical;
 }
 
-.cart-item-image {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  margin-right: 15px;
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #ff6600;
 }
 
-.cart-item-details p {
-  margin: 5px 0;
+.total-price {
+  font-size: 1.5rem;
+  margin: 20px 0;
+  color: #e60000;
 }
 
-.total {
-  margin-top: 20px;
-  font-size: 1.2rem;
-  text-align: right;
-}
-
-.place-order-button {
+.confirm-button {
   width: 100%;
   padding: 12px;
+  font-size: 1.2rem;
   background-color: #ff6600;
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 1.2rem;
-  margin-top: 20px;
 }
 
-.place-order-button:hover {
+.confirm-button:hover {
   background-color: #e65c00;
 }
 
-.login-prompt {
-  text-align: center;
-}
-
-.login-link {
-  color: #007bff;
-  text-decoration: none;
-}
-
-.login-link:hover {
-  text-decoration: underline;
-}
-
-.empty-cart {
+.error {
+  color: #e60000;
+  margin-top: 10px;
+  font-size: 1rem;
   text-align: center;
 }
 </style>
