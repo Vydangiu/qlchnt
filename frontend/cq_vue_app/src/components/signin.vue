@@ -51,32 +51,75 @@ export default {
     localStorage.removeItem("access_token");
   },
   methods: {
-    async login() {
-      console.log("Bắt đầu đăng nhập...");
-      try {
-        const response = await axios.post("http://127.0.0.1:8000/api/users/login/", this.form);
-        if (response.status === 200) {
-          alert("Đăng nhập thành công!");
-           // Lưu token vào localStorage
-          localStorage.setItem("access_token", response.data.access);
-           // Lưu thông tin user vào localStorage
-           localStorage.setItem("user", JSON.stringify(response.data.user));
+  //   async login() {
+  //     console.log("Bắt đầu đăng nhập...");
+  //     try {
+  //       const response = await axios.post("http://127.0.0.1:8000/api/users/login/", this.form);
+  //       if (response.status === 200) {
+  //         alert("Đăng nhập thành công!");
+  //          // Lưu token vào localStorage
+  //         localStorage.setItem("access_token", response.data.access);
+  //          // Lưu thông tin user vào localStorage
+  //          localStorage.setItem("user", JSON.stringify(response.data.user));
 
-          // Reset form sau khi đăng nhập
-          this.form.username = "";
-          this.form.password = "";
+  //         // Reset form sau khi đăng nhập
+  //         this.form.username = "";
+  //         this.form.password = "";
 
-          this.$router.push("/");
-        }
-      } catch (error) {
-        this.errorMessage = "Sai tài khoản hoặc mật khẩu!";
-      }
-    },
-    logout() {
-      localStorage.removeItem("access_token");
-      this.$router.push("/signin");
+  //         this.$router.push("/");
+  //       }
+  //     } catch (error) {
+  //       this.errorMessage = "Sai tài khoản hoặc mật khẩu!";
+  //     }
+  //   },
+  //   logout() {
+  //     localStorage.removeItem("access_token");
+  //     this.$router.push("/signin");
+  //   }
+  // },
+  async login() {
+    console.log("Bắt đầu đăng nhập...", this.form);
+
+    // Kiểm tra dữ liệu trước khi gửi
+    if (!this.form.username || !this.form.password) {
+        this.errorMessage = "Vui lòng nhập đầy đủ thông tin!";
+        return;
     }
-  },
+
+    try {
+        const response = await axios.post(
+            "http://127.0.0.1:8000/api/users/login/",
+            this.form,
+            {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        console.log("Response status:", response.status);
+        console.log("Response data:", response.data);
+
+        if (response.status === 200) {
+            alert("Đăng nhập thành công!");
+            // Lưu token và thông tin user
+            localStorage.setItem("access_token", response.data.access);
+            localStorage.setItem("refresh_token", response.data.refresh);
+            localStorage.setItem("user", JSON.stringify(response.data.user));
+
+            // Reset form
+            this.form.username = "";
+            this.form.password = "";
+            this.errorMessage = "";
+
+            this.$router.push("/");
+        }
+    } catch (error) {
+        console.error("Lỗi chi tiết:", error.response?.data);
+        this.errorMessage = error.response?.data?.error || JSON.stringify(error.response?.data) || "Có lỗi xảy ra!";
+    }
+}
+  }
 };
 </script>
 

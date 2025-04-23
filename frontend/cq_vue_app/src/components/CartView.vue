@@ -76,7 +76,7 @@
 
       <div class="cart-total">
         <h2>Tổng tiền: {{ formatPrice(totalPrice) }}</h2>
-        <button @click="checkout" class="checkout-button">🛍️ Thanh Toán</button>
+        <button @click="proceedToCheckout" class="checkout-button">🛍️ Thanh Toán</button>
       </div>
     </div>
   </div>
@@ -87,7 +87,8 @@ export default {
   data() {
     return {
       cart: [],
-      user: JSON.parse(localStorage.getItem("user")) || null, // Lấy thông tin user
+      user: JSON.parse(localStorage.getItem("user")) || null,
+      isOpen: false,
     };
   },
   computed: {
@@ -96,6 +97,9 @@ export default {
     },
   },
   methods: {
+    toggleMenu() {
+      this.isOpen = !this.isOpen;
+    },
     getProductImage(product) {
       if (product && product.images && product.images.length > 0) {
         let imageUrl = product.images[0].image_url;
@@ -103,11 +107,9 @@ export default {
       }
       return "/default-image.jpg";
     },
-
     formatPrice(price) {
       return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
     },
-
     updateQuantity(item, change) {
       const index = this.cart.findIndex((p) => p.id === item.id);
       if (index !== -1) {
@@ -118,80 +120,83 @@ export default {
         this.saveCart();
       }
     },
-
     removeFromCart(item) {
       this.cart = this.cart.filter((p) => p.id !== item.id);
       this.saveCart();
     },
-
     saveCart() {
       if (this.user) {
         localStorage.setItem(`cart_${this.user.id}`, JSON.stringify(this.cart));
       }
     },
-
-    checkout() {
-      alert("Chức năng thanh toán đang phát triển!");
+    proceedToCheckout() {
+      if (!this.user) {
+        this.$router.push("/signin");
+        return;
+      }
+      // Chuyển hướng đến trang checkout
+      this.$router.push("/checkout");
     },
-
     logout() {
       localStorage.removeItem("access_token");
       localStorage.removeItem("user");
       this.user = null;
       this.cart = [];
-      this.$router.push("/sigin");
+      this.$router.push("/signin");
     },
   },
-
   created() {
     if (this.user) {
       this.cart = JSON.parse(localStorage.getItem(`cart_${this.user.id}`)) || [];
+    } else {
+      this.$router.push("/signin");
     }
   },
 };
 </script>
-  <style>
-  .cart-container {
-    max-width: 800px;
-    margin: auto;
-    padding: 20px;
-    text-align: center;
-  }
-  .cart-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  .cart-table th, .cart-table td {
-    border: 2px solid #dddd;
-    padding: 10px 20px;
-  }
-  .cart-image {
-    width: 100px;
-    height: 80px;
-    margin: 0 auto;
-  }
-  .cart-total {
-    margin-top: 20px;
-    font-size: 1.2rem;
-  }
-  .checkout-button {
-    background-color: #ff6600;
-    color: white;
-    padding: 10px;
-    border: none;
-    cursor: pointer;
-    font-size: 1.2rem;
-    margin-top: 1.5rem;
-    border-radius: 8px;
-  }
-  .empty-cart {
-    font-size: 1.2rem;
-  }
-  .back-to-shop {
-    display: inline-block;
-    margin-top: 10px;
-    font-size: 1rem;
-    color: blue;
-  }
-  </style>
-  
+
+<style>
+.cart-container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.cart-table th,
+.cart-table td {
+  border: 2px solid #dddd;
+  padding: 10px 20px;
+}
+.cart-image {
+  width: 100px;
+  height: 80px;
+  margin: 0 auto;
+}
+.cart-total {
+  margin-top: 20px;
+  font-size: 1.2rem;
+}
+.checkout-button {
+  background-color: #ff6600;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  margin-top: 1.5rem;
+  border-radius: 8px;
+}
+.empty-cart {
+  font-size: 1.2rem;
+}
+.back-to-shop {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 1rem;
+  color: blue;
+}
+</style>

@@ -10,6 +10,9 @@ from .serializers import UserSerializer
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated  # hoặc IsAdminUser nếu cần bảo mật
 
+from .serializers import RegisterUserSerializer
+
+
 
 User = get_user_model()
 
@@ -42,7 +45,7 @@ class RegisterAPI(APIView):
             return Response({'error': 'Email đã được sử dụng'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Gửi dữ liệu vào serializer
-        serializer = UserSerializer(data=data)
+        serializer = RegisterUserSerializer(data=data)
         if serializer.is_valid():
             try:
                 user = serializer.save()

@@ -50,70 +50,122 @@ export default {
         };
     },
     methods: {
-        async signup() {
-            // Kiểm tra mật khẩu nhập lại có trùng không
-            if (this.form.password !== this.form.password2) {
-                this.errorMessage = "Mật khẩu không khớp!";
-                return;
-            }
+    //     async signup() {
+    //         // Kiểm tra mật khẩu nhập lại có trùng không
+    //         if (this.form.password !== this.form.password2) {
+    //             this.errorMessage = "Mật khẩu không khớp!";
+    //             return;
+    //         }
 
-            // Kiểm tra các trường không được để trống
-            if (!this.form.email || !this.form.password || !this.form.password2 || !this.form.phone) {
-                this.errorMessage = "Vui lòng nhập đầy đủ thông tin!";
-                return;
-            }
+    //         // Kiểm tra các trường không được để trống
+    //         if (!this.form.email || !this.form.password || !this.form.password2 || !this.form.phone) {
+    //             this.errorMessage = "Vui lòng nhập đầy đủ thông tin!";
+    //             return;
+    //         }
 
-            try {
-                const csrfToken = this.getCookie("csrftoken");
+    //         try {
+    //             const csrfToken = this.getCookie("csrftoken");
 
-                // Nếu username rỗng, tự động tạo từ email
-                if (!this.form.username) {
-                    this.form.username = this.form.email.split("@")[0];
-                }
+    //             // Nếu username rỗng, tự động tạo từ email
+    //             if (!this.form.username) {
+    //                 this.form.username = this.form.email.split("@")[0];
+    //             }
 
-                const response = await axios.post(
-                    "http://127.0.0.1:8000/api/users/register/",
-                    this.form,
-                    {
-                        headers: {
-                            "X-CSRFToken": csrfToken,
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
+    //             const response = await axios.post(
+    //                 "http://127.0.0.1:8000/api/users/register/",
+    //                 this.form,
+    //                 {
+    //                     headers: {
+    //                         "X-CSRFToken": csrfToken,
+    //                         "Content-Type": "application/json",
+    //                     },
+    //                 }
+    //             );
 
-                if (response.status === 201) {
-                    alert("Đăng ký thành công! Hệ thống sẽ tự động đăng nhập.");
+    //             if (response.status === 201) {
+    //                 alert("Đăng ký thành công! Hệ thống sẽ tự động đăng nhập.");
 
-                    // Lưu token vào localStorage nếu có
-                    if (response.data.access) {
-                        localStorage.setItem("access_token", response.data.access);
-                        localStorage.setItem("refresh_token", response.data.refresh);
-                    }
+    //                 // Lưu token vào localStorage nếu có
+    //                 if (response.data.access) {
+    //                     localStorage.setItem("access_token", response.data.access);
+    //                     localStorage.setItem("refresh_token", response.data.refresh);
+    //                 }
 
-                    // Chuyển hướng sang trang chủ hoặc đăng nhập
-                    this.$router.push("/");
-                }
-            } catch (error) {
-                console.error(error.response);
-                this.errorMessage = error.response?.data?.error || "Có lỗi xảy ra!";
-            }
-        },
+    //                 // Chuyển hướng sang trang chủ hoặc đăng nhập
+    //                 this.$router.push("/");
+    //             }
+    //         } catch (error) {
+    //             console.error(error.response);
+    //             this.errorMessage = error.response?.data?.error || "Có lỗi xảy ra!";
+    //         }
+    //     },
 
-        getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== "") {
-                const cookies = document.cookie.split(";");
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.startsWith(name + "=")) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
+    //     getCookie(name) {
+    //         let cookieValue = null;
+    //         if (document.cookie && document.cookie !== "") {
+    //             const cookies = document.cookie.split(";");
+    //             for (let i = 0; i < cookies.length; i++) {
+    //                 const cookie = cookies[i].trim();
+    //                 if (cookie.startsWith(name + "=")) {
+    //                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //         return cookieValue;
+    //     }
+    // }
+    async signup() {
+    if (this.form.password !== this.form.password2) {
+        this.errorMessage = "Mật khẩu không khớp!";
+        return;
+    }
+
+    if (!this.form.email || !this.form.password || !this.form.password2 || !this.form.phone) {
+        this.errorMessage = "Vui lòng nhập đầy đủ thông tin!";
+        return;
+    }
+
+    try {
+        if (!this.form.username) {
+            this.form.username = this.form.email.split("@")[0];
         }
+
+        const response = await axios.post(
+            "http://127.0.0.1:8000/api/users/register/",
+            this.form,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        console.log("Response status:", response.status);
+        console.log("Response data:", response.data);
+
+        if (response.status === 201) {
+            alert("Đăng ký thành công! Hệ thống sẽ tự động đăng nhập.");
+
+            if (response.data.access && response.data.refresh) {
+                localStorage.setItem("access_token", response.data.access);
+                localStorage.setItem("refresh_token", response.data.refresh);
+                console.log("Token đã được lưu:", {
+                    access: localStorage.getItem("access_token"),
+                    refresh: localStorage.getItem("refresh_token")
+                });
+            } else {
+                console.warn("Không tìm thấy token trong response:", response.data);
+                this.errorMessage = "Đăng ký thành công nhưng không nhận được token!";
+            }
+
+            this.$router.push("/");
+        }
+    } catch (error) {
+        console.error("Lỗi chi tiết:", error.response?.data); // Log toàn bộ lỗi
+        this.errorMessage = error.response?.data?.error || JSON.stringify(error.response?.data) || "Có lỗi xảy ra!";
+    }
+}
     }
 };
 </script>

@@ -2,7 +2,9 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework import viewsets, status
-from .models import User
+from .models import OrderItem
+from users.models import User  # thay vì .models
+
 from .serializers import UserSerializer
 from .models import Category, Product, ProductImage
 from .serializers import CategorySerializer, ProductSerializer, ProductImageSerializer
@@ -52,12 +54,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]  # Chỉ user đăng nhập mới có thể sửa / xóa
     authentication_classes = [JWTAuthentication]  # Xác thực bằng Token JWT
 
-    # @action(detail=False, methods=['get'], url_path='category/(?P<category_id>[^/.]+)')
-    # def list_by_category(self, request, category_id=None):
-    #     """ Lấy danh sách sản phẩm theo danh mục """
-    #     products = Product.objects.filter(category_id=category_id)
-    #     serializer = self.get_serializer(products, many=True)
-    #     return Response(serializer.data)
+   
 
     def list(self, request, *args, **kwargs):
         queryset = Product.objects.all()
@@ -151,16 +148,17 @@ class ProductImageViewSet(viewsets.ModelViewSet):
         product_image.delete()
         return Response({"message": "Xóa ảnh sản phẩm thành công"}, status=status.HTTP_204_NO_CONTENT)
 
-class CartViewSet(viewsets.ModelViewSet):
-    queryset = Cart.objects.all()
-    serializer_class = CartSerializer
-    permission_classes = [IsAuthenticated]
+# class CartViewSet(viewsets.ModelViewSet):
+#     queryset = Cart.objects.all()
+#     serializer_class = CartSerializer
+#     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        return Cart.objects.filter(user=self.request.user)
+#     def get_queryset(self):
+#         return Cart.objects.filter(user=self.request.user)
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+#     def perform_create(self, serializer):
+#         user = self.request.user
+#         serializer.save(user=self.request.user)
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -172,22 +170,253 @@ class CartItemViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return CartItem.objects.filter(cart__user=self.request.user)
 
+
     @action(detail=True, methods=["patch"])
     def update_quantity(self, request, pk=None):
         cart_item = self.get_object()
         quantity = request.data.get("quantity")
 
         if quantity and int(quantity) > 0:
-            cart_item.quantity = int(quantity)
-            cart_item.save()
-            return Response({"message": "Cập nhật số lượng thành công", "quantity": cart_item.quantity})
+            # Kiểm tra xem số lượng có vượt quá số lượng trong kho không
+            if cart_item.product.stock >= int(quantity):
+                cart_item.quantity = int(quantity)
+                cart_item.save()
+                return Response({"message": "Cập nhật số lượng thành công", "quantity": cart_item.quantity})
+            else:
+                return Response({"error": "Số lượng yêu cầu vượt quá số lượng trong kho"}, status=400)
         return Response({"error": "Số lượng không hợp lệ"}, status=400)
     @action(detail=True, methods=["delete"])
     def remove_item(self, request, pk=None):
-        cart_item = self.get_object()
-        cart_item.delete()
-        return Response({"message": "Xóa sản phẩm khỏi giỏ hàng thành công"}, status=204)
+        try:
+            cart_item = self.get_object()
+            if cart_item.cart.user != request.user:
+                return Response({"error": "Sản phẩm này không thuộc giỏ hàng của bạn."}, status=403)
+            cart_item.delete()
+            return Response({"message": "Xóa sản phẩm khỏi giỏ hàng thành công"}, status=204)
+        except CartItem.DoesNotExist:
+            return Response({"error": "Sản phẩm không tồn tại trong giỏ hàng"}, status=404)
+
+class CartViewSet(viewsets.ModelViewSet):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+
+    def get_queryset(self):
+        return Cart.objects.filter(user=self.request.user)
+
+    @action(detail=True, methods=['post'])
+    def items(self, request, pk=None):
+        cart = self.get_object()
+        serializer = CartItemSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(cart=cart)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['delete'])
+    def items(self, request, pk=None):
+        cart = self.get_object()
+        CartItem.objects.filter(cart=cart).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
+# class OrderViewSet(viewsets.ModelViewSet):
+#     queryset = Order.objects.all()
+#     serializer_class = OrderSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def get_queryset(self):
+#         return Order.objects.filter(user=self.request.user)
+
+#     def perform_create(self, serializer):
+#         user = self.request.user
+#         serializer.save(user=self.request.user)
+
+#     @action(detail=False, methods=['post'], serializer_class=CheckoutSerializer)
+#     def checkout(self, request):
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         order = serializer.save()  # Tạo đơn hàng và lưu vào DB
+#          # XÓA CÁC CART ITEM ĐÃ MUA
+#         CartItem.objects.filter(cart__user=request.user).delete()
+#         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+
+# from rest_framework.response import Response
+# from rest_framework.decorators import action
+# from rest_framework import status
+
+# class OrderViewSet(viewsets.ModelViewSet):
+#     queryset = Order.objects.all()
+#     serializer_class = OrderSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def get_queryset(self):
+#         return Order.objects.filter(user=self.request.user)
+
+#     def perform_create(self, serializer):
+#         user = self.request.user
+#         serializer.save(user=self.request.user)
+
+#     @action(detail=False, methods=['post'], serializer_class=CheckoutSerializer)
+#     def checkout(self, request):
+#         user = request.user
+#         product_id = request.data.get("product_id")
+#         quantity = request.data.get("quantity", 1)
+
+#         # Kiểm tra giỏ hàng của user
+#         cart = Cart.objects.filter(user=user).first()
+#         if not cart:
+#             # Nếu không có giỏ hàng, tạo giỏ hàng mới
+#             cart = Cart.objects.create(user=user)
+
+#         # Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
+#         cart_item = CartItem.objects.filter(cart=cart, product_id=product_id).first()
+
+#         if cart_item:
+#             # Nếu sản phẩm đã có, tăng số lượng
+#             cart_item.quantity += quantity
+#             cart_item.save()
+#         else:
+#             # Nếu sản phẩm chưa có, thêm mới
+#             product = Product.objects.get(id=product_id)
+#             cart_item = CartItem.objects.create(cart=cart, product=product, quantity=quantity)
+
+#         # Sau khi thêm vào giỏ hàng, xử lý checkout
+#         # Lấy thông tin giỏ hàng để tạo đơn hàng
+#         order = Order.objects.create(user=user, cart=cart)
+
+#         # Xóa các sản phẩm trong giỏ hàng sau khi đã mua
+#         CartItem.objects.filter(cart=cart).delete()
+
+#         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import action
+from store.models import Cart, CartItem, Order, Product
+
+# class OrderViewSet(viewsets.ModelViewSet):
+#     queryset = Order.objects.all()
+#     serializer_class = OrderSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def get_queryset(self):
+#         return Order.objects.filter(user=self.request.user)
+
+#     def perform_create(self, serializer):
+#         user = self.request.user
+#         serializer.save(user=self.request.user)
+
+#     @action(detail=False, methods=['post'], serializer_class=CheckoutSerializer)
+#     def checkout(self, request):
+#         user = request.user
+#         product_id = request.data.get("product_id")
+#         quantity = request.data.get("quantity", 1)
+
+
+#         # Kiểm tra sự tồn tại của sản phẩm
+#         try:
+#             product = Product.objects.get(id=product_id)
+#         except Product.DoesNotExist:
+#             return Response({"error": "Sản phẩm không tồn tại"}, status=status.HTTP_404_NOT_FOUND)
+
+#         # Kiểm tra giỏ hàng của user
+#         cart = Cart.objects.filter(user=user).first()
+#         if not cart:
+#             # Nếu không có giỏ hàng, tạo giỏ hàng mới
+#             cart = Cart.objects.create(user=user)
+
+#         # Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
+#         cart_item = CartItem.objects.filter(cart=cart, product=product).first()
+
+#         if cart_item:
+#             # Nếu sản phẩm đã có, tăng số lượng
+#             cart_item.quantity += quantity
+#             cart_item.save()
+#         else:
+#             # Nếu sản phẩm chưa có, thêm mới
+#             cart_item = CartItem.objects.create(cart=cart, product=product, quantity=quantity)
+
+#         # Sau khi thêm vào giỏ hàng, xử lý checkout
+#         order = Order.objects.create(user=user, total_price=cart.total_price(), status='pending')
+
+#         # Thêm các items vào đơn hàng
+#         for item in cart.items.all():
+#             OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.price)
+
+#         # Xóa các sản phẩm trong giỏ hàng sau khi đã mua
+#         CartItem.objects.filter(cart=cart).delete()
+
+#         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+
+
+# class OrderViewSet(viewsets.ModelViewSet):
+#     queryset = Order.objects.all()
+#     serializer_class = OrderSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def get_queryset(self):
+#         return Order.objects.filter(user=self.request.user)
+
+#     def perform_create(self, serializer):
+#         user = self.request.user
+#         serializer.save(user=user)
+
+#     @action(detail=False, methods=['post'], serializer_class=CheckoutSerializer)
+#     def checkout(self, request):
+#         user = request.user
+#         serializer = CheckoutSerializer(data=request.data)
+
+#         if serializer.is_valid():
+#             product_id = serializer.validated_data.get("product_id")
+#             quantity = serializer.validated_data.get("quantity", 1)
+#             shipping_address = serializer.validated_data.get("shipping_address")
+#             payment_method = serializer.validated_data.get("payment_method")
+
+#             # Kiểm tra sự tồn tại của sản phẩm
+#             try:
+#                 product = Product.objects.get(id=product_id)
+#             except Product.DoesNotExist:
+#                 return Response({"error": "Sản phẩm không tồn tại"}, status=status.HTTP_404_NOT_FOUND)
+
+#             # Kiểm tra giỏ hàng của user
+#             cart = Cart.objects.filter(user=user).first()
+#             if not cart:
+#                 # Nếu không có giỏ hàng, tạo giỏ hàng mới
+#                 cart = Cart.objects.create(user=user)
+
+#             # Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
+#             cart_item = CartItem.objects.filter(cart=cart, product=product).first()
+
+#             if cart_item:
+#                 # Nếu sản phẩm đã có, tăng số lượng
+#                 cart_item.quantity += quantity
+#                 cart_item.save()
+#             else:
+#                 # Nếu sản phẩm chưa có, thêm mới
+#                 cart_item = CartItem.objects.create(cart=cart, product=product, quantity=quantity)
+
+#             # Sau khi thêm vào giỏ hàng, xử lý checkout
+#             order = Order.objects.create(
+#                 user=user,
+#                 shipping_address=shipping_address,  # Cung cấp địa chỉ giao hàng
+#                 payment_method=payment_method,  # Cung cấp phương thức thanh toán
+#                 total_price=cart.total_price(), 
+#                 status='pending'
+#             )
+
+#             # Thêm các items vào đơn hàng
+#             for item in cart.items.all():
+#                 OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.price)
+
+#             # Xóa các sản phẩm trong giỏ hàng sau khi đã mua
+#             CartItem.objects.filter(cart=cart).delete()
+
+#             return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
@@ -196,12 +425,13 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
     @action(detail=False, methods=['post'], serializer_class=CheckoutSerializer)
     def checkout(self, request):
-        serializer = self.get_serializer(data=request.data)
+        # Gọi serializer để validate + create Order theo logic bạn đã viết
+        serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         order = serializer.save()
-        return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+
+        # Trả về Order đầy đủ theo OrderSerializer
+        out = OrderSerializer(order, context={'request': request})
+        return Response(out.data, status=status.HTTP_201_CREATED)

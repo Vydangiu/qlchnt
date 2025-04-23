@@ -1,127 +1,147 @@
 <template>
   <header class="menu-toggle" >
-      <div class="navbar" >
-          <div class="navbar-link" >
-              <ul class="navbar-link-item"  :class="{ 'active': isOpen }">
-                  <li class="item-link"> <a class="link" href="/"> Trang chủ</a></li>
-                  <li class="item-link"> <a class="link" href="Product">Sản phẩm</a> </li>
-                  <li class="item-link"> <a class="link" href="Blog"> About</a></li>
-                  <li class="item-link"> <a class="link" href="contact">Liên hệ</a> </li>
-              </ul>
-          </div>
-          <div class="navbar-logo">
-              <img class="logo" src="@/assets/IMG/logo1.jpg" alt="logo">
-          </div>
-          <div class="navbar-search">
-            <input type="text" v-model="navbarSearch" class="search-input" placeholder="Tìm kiếm" @keyup.enter="searchFromNavbar" />
-            <div class="icon-search">
-              <a class="link" href="#" @click.prevent="searchFromNavbar">
-                <i class="fa-solid fa-magnifying-glass"></i>
-              </a>
-            </div>
-          </div>
-          <div class="navbar-cart-login-icon">
-            <a style="font-size: 2rem;" href="/cart"> 
-                <i class="fa-solid fa-bag-shopping"></i>
-            </a>
-            
-            <div v-if="user" class="user-info">
-              
-                <a class="user-hello" style="font-size: 2rem;  cursor: pointer;" @click="logout">
-                    <i style="margin-top: 40px" class="fa-solid fa-user"></i>
-                    <span style="font-size: 1rem; display: inline-flex;margin-left: 20%;"> Xin chào, {{ user.username }} </span>
-                  
-                </a>  
-            </div>
-            <a v-else style="font-size: 2rem; padding-bottom: 10px;" href="signin">
-                <i class="fa-solid fa-user"></i>
-            </a>
-          </div>
-
-
-
+    <div class="navbar" >
+      <div class="navbar-link" >
+        <ul class="navbar-link-item" :class="{ 'active': isOpen }">
+          <li class="item-link"><a class="link" href="/">Trang chủ</a></li>
+          <li class="item-link"><a class="link" href="Product">Sản phẩm</a></li>
+          <li class="item-link"><a class="link" href="Blog">About</a></li>
+          <li class="item-link"><a class="link" href="contact">Liên hệ</a></li>
+        </ul>
       </div>
-      <div class="hamburger" @click="toggleMenu">☰</div>
-  </header>
-    <div class="product-detail" v-if="product">
-        
-          <img class="product-image" :src="getProductImage(product)" :alt="product.name" />
-        
-        <div class="product-info">
-          <h1>{{ product.name }}</h1>
-          <div class="cost-container">
-          <p>Giá bán:</p>
-          <p class="price">{{ formatPrice(product.price) }}</p>
+      <div class="navbar-logo">
+        <img class="logo" src="@/assets/IMG/logo1.jpg" alt="logo">
+      </div>
+      <div class="navbar-search">
+        <input type="text" v-model="navbarSearch" class="search-input" placeholder="Tìm kiếm" @keyup.enter="searchFromNavbar" />
+        <div class="icon-search">
+          <a class="link" href="#" @click.prevent="searchFromNavbar">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </a>
         </div>
-          <p class="product-description" v-if="product.description">{{ product.description }}</p>
-          <p><i>Đã bán: {{ product.sold }}</i></p>
-          <button class="cart-button2" @click="addToCart(product)">THÊM VÀO GIỎ HÀNG</button>
-          <button class="button-group__buy" type="submit"><a style="text-decoration: none; color: white" href="/shop_cart">MUA NGAY</a> </button>
-         </div>
+      </div>
+      <div class="navbar-cart-login-icon">
+        <a style="font-size: 2rem;" href="/cart">
+          <i class="fa-solid fa-bag-shopping"></i>
+        </a>
+        <div v-if="user" class="user-info">
+          <a class="user-hello" style="font-size: 2rem; cursor: pointer;" @click="logout">
+            <i style="margin-top: 40px" class="fa-solid fa-user"></i>
+            <span style="font-size: 1rem; display: inline-flex;margin-left: 20%;">Xin chào, {{ user.username }}</span>
+          </a>  
+        </div>
+        <a v-else style="font-size: 2rem; padding-bottom: 10px;" href="signin">
+          <i class="fa-solid fa-user"></i>
+        </a>
+      </div>
     </div>
+    <div class="hamburger" @click="toggleMenu">☰</div>
+  </header>
+  
+  <div class="product-detail" v-if="product">
+    <img class="product-image" :src="getProductImage(product)" :alt="product.name" />
+    <div class="product-info">
+      <h1>{{ product.name }}</h1>
+      <div class="cost-container">
+        <p>Giá bán:</p>
+        <p class="price">{{ formatPrice(product.price) }}</p>
+      </div>
+      <p class="product-description" v-if="product.description">{{ product.description }}</p>
+      <p><i>Đã bán: {{ product.sold }}</i></p>
+      <button class="cart-button2" @click="addToCart(product)">THÊM VÀO GIỎ HÀNG</button>
+      <button class="button-group__buy" type="submit">
+        <a style="text-decoration: none; color: white" @click="buyNow(product)">MUA NGAY</a>
+      </button>
+    </div>
+  </div>
 
-    <div v-else-if="loading">Đang tải...</div>
-    <div v-else>Lỗi khi tải sản phẩm.</div>
-  </template>
-  
-  <script>
-  import axios from 'axios';
-  
-  export default {
-    data() {
-      return {
-        product: null,
-        loading: true,
-      };
-    },
-    methods: {
-      async fetchProduct() {
-        try {
-          const id = this.$route.params.id;
-          const response = await axios.get(`http://127.0.0.1:8000/api/products/${id}/`);
-          this.product = response.data;
-        } catch (err) {
-          console.error('Lỗi khi lấy thông tin sản phẩm:', err);
-        } finally {
-          this.loading = false;
-        }
-      },
-      getProductImage(product) {
-        if (product && product.images && product.images.length > 0) {
-          let imageUrl = product.images[0].image_url;
-          if (imageUrl.startsWith('http')) return imageUrl;
-          return `http://127.0.0.1:8000/product_images/${imageUrl.split('/').pop()}`;
-        }
-        return '/default-image.jpg';
-      },
-      formatPrice(price) {
-        return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
-      },
-      addToCart(product) {
-        const token = localStorage.getItem("access_token");
-        const user = JSON.parse(localStorage.getItem("user"));
-        if (!token || !user) {
-          alert("Bạn cần đăng nhập để thêm vào giỏ hàng!");
-          this.$router.push("/signin");
-          return;
-        }
-        let cartKey = `cart_${user.id}`;
-        let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-        let existingItem = cart.find((item) => item.id === product.id);
-        if (existingItem) {
-          existingItem.quantity += 1;
-        } else {
-          cart.push({ ...product, quantity: 1 });
-        }
-        localStorage.setItem(cartKey, JSON.stringify(cart));
-        alert("Đã thêm vào giỏ hàng!");
+  <div v-else-if="loading">Đang tải...</div>
+  <div v-else>Lỗi khi tải sản phẩm.</div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  data() {
+    return {
+      product: null,
+      loading: true,
+    };
+  },
+  methods: {
+    async fetchProduct() {
+      try {
+        const id = this.$route.params.id;
+        const response = await axios.get(`http://127.0.0.1:8000/api/products/${id}/`);
+        this.product = response.data;
+      } catch (err) {
+        console.error('Lỗi khi lấy thông tin sản phẩm:', err);
+      } finally {
+        this.loading = false;
       }
     },
-    created() {
-      this.fetchProduct();
-    }
-  };
-  </script>
+    getProductImage(product) {
+      if (product && product.images && product.images.length > 0) {
+        let imageUrl = product.images[0].image_url;
+        if (imageUrl.startsWith('http')) return imageUrl;
+        return `http://127.0.0.1:8000/product_images/${imageUrl.split('/').pop()}`;
+      }
+      return '/default-image.jpg';
+    },
+    formatPrice(price) {
+      return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
+    },
+    addToCart(product) {
+      const token = localStorage.getItem("access_token");
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!token || !user) {
+        alert("Bạn cần đăng nhập để thêm vào giỏ hàng!");
+        this.$router.push("/signin");
+        return;
+      }
+      let cartKey = `cart_${user.id}`;
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+      let existingItem = cart.find((item) => item.id === product.id);
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        cart.push({ ...product, quantity: 1 });
+      }
+      localStorage.setItem(cartKey, JSON.stringify(cart));
+      alert("Đã thêm vào giỏ hàng!");
+    },
+    async buyNow(product) {
+  const token = localStorage.getItem("access_token");
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (!token || !user) {
+    alert("Bạn cần đăng nhập để mua sản phẩm!");
+    this.$router.push("/signin");
+    return;
+  }
+
+  // Thêm sản phẩm vào giỏ hàng
+  let cartKey = `cart_${user.id}`;
+  let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+  let existingItem = cart.find((item) => item.id === product.id);
+  if (existingItem) {
+    existingItem.quantity += 1;
+  } else {
+    cart.push({ ...product, quantity: 1 });
+  }
+  localStorage.setItem(cartKey, JSON.stringify(cart));
+
+  alert("Đã thêm vào giỏ hàng! Chuyển đến trang mua ngay.");
+  this.$router.push(`/checkout/${product.id}/`); // Chuyển đến trang thanh toán / mua ngay
+}
+  },
+  created() {
+    this.fetchProduct();
+  }
+};
+</script>
+
   
   <style scoped>
   .button-group__buy {

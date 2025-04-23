@@ -19,5 +19,6 @@ router.register(r'orders', OrderViewSet, basename='order')
 urlpatterns = [
     path('', include(router.urls)),
     path('checkout/', OrderViewSet.as_view({'post': 'checkout'}), name='checkout'),
+    path('buy-now/', OrderViewSet.as_view({'post': 'buy_now'}), name='buy-now'),
   
 ]

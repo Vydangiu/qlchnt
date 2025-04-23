@@ -93,6 +93,7 @@ import Orders from '@/components/Orders.vue'
 import Users from '@/components/Users.vue'
 import AdminProductList from '@/components/AdminProductList.vue'
 import Login from './components/Login.vue'
+import Checkout from './components/checkout.vue'
 
 const routes = [
     // --- Khách hàng ---
@@ -100,13 +101,22 @@ const routes = [
     { name: 'signin', path: '/signin', component: signin },
     { name: 'signup', path: '/signup', component: signup },
     { name: 'detail', path: '/detail', component: detail },
-    { name: 'ProductDetail', path: '/products/:id', component: ProductDetail },
+    // { name: 'ProductDetail', path: '/products/:id', component: ProductDetail },
+    { name: 'ProductDetail', path: '/products/:id', component: ProductDetail,  props: true  },
     { name: 'Product', path: '/Product', component: Product },
     { name: 'contact', path: '/contact', component: contact },
     { name: 'Blog', path: '/Blog', component: Blog },
     { name: 'shop_cart', path: '/shop_cart', component: shop_cart },
     { name: 'Cart', path: '/cart', component: CartView },
-
+    { name: 'Checkout',path: `/checkout/:productId/`, component: Checkout,  props: true   },
+    { name: 'Orders', path: '/orders', component: Orders},
+ // Luồng thanh toán giỏ hàng
+ {
+    path: "/checkout/",
+    name: "CheckoutCart",
+    component: Checkout,
+    props: false
+  },
     //   // --- Admin ---
     { path: '/login', component: Login },
     //   {
@@ -166,12 +176,7 @@ const routes = [
         component: Categories,
         meta: { requiresAuth: true }, // Yêu cầu xác thực
     },
-    {
-        path: '/admin/orders',
-        name: 'Orders',
-        component: Orders,
-        meta: { requiresAuth: true }, // Yêu cầu xác thực
-    },
+  
     {
         path: '/admin/users',
         name: 'Users',
