@@ -3,7 +3,7 @@
     <h1 class="checkout-title">🛒 Thanh Toán</h1>
 
     <!-- Thông báo giỏ hàng trống -->
-    <div v-if="cart.length === 0" class="empty-cart">
+    <div v-if="displayedCart.length === 0" class="empty-cart">
       <p>Giỏ hàng của bạn đang trống!</p>
       <router-link to="/Product" class="back-to-shop">🛍️ Tiếp tục mua sắm</router-link>
     </div>
@@ -19,11 +19,11 @@
               <th>Giá</th>
               <th>Số lượng</th>
               <th>Tổng</th>
-              <th>Hành động</th>
+              <th v-if="!isBuyNow">Hành động</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in cart" :key="item.id">
+            <tr v-for="item in displayedCart" :key="item.id">
               <td class="cart-item">
                 <img :src="getProductImage(item)" alt="Product image" class="cart-image">
                 <span>{{ item.name }}</span>
@@ -35,7 +35,7 @@
                 <button @click="updateQuantity(item, 1)">➕</button>
               </td>
               <td>{{ formatPrice(item.price * item.quantity) }}</td>
-              <td>
+              <td v-if="!isBuyNow">
                 <button @click="confirmRemove(item)" class="remove-button">❌ Xóa</button>
               </td>
             </tr>
@@ -107,7 +107,8 @@ export default {
   name: "CheckoutView",
   data() {
     return {
-      cart: [],
+      cart: [], // Giỏ hàng từ localStorage
+      displayedCart: [], // Giỏ hàng hiển thị (có thể từ localStorage hoặc buyNow)
       user: null,
       name: "",
       phoneNumber: "",
@@ -116,11 +117,12 @@ export default {
       paymentMethod: "cod",
       error: null,
       productId: null,
+      isBuyNow: false, // Xác định xem có phải từ "Mua Ngay" không
     };
   },
   computed: {
     totalPrice() {
-      return this.cart.reduce((total, item) => total + item.price * item.quantity, 0);
+      return this.displayedCart.reduce((total, item) => total + item.price * item.quantity, 0);
     },
   },
   methods: {
@@ -137,15 +139,26 @@ export default {
     },
 
     updateQuantity(item, change) {
-      const index = this.cart.findIndex((p) => p.id === item.id);
+      const index = this.displayedCart.findIndex((p) => p.id === item.id);
       if (index === -1) return;
 
-      const newQuantity = this.cart[index].quantity + change;
+      const newQuantity = this.displayedCart[index].quantity + change;
       if (newQuantity <= 0) {
-        this.confirmRemove(item);
+        if (!this.isBuyNow) {
+          this.confirmRemove(item); // Chỉ cho phép xóa nếu không phải "Mua Ngay"
+        } else {
+          alert("Số lượng tối thiểu là 1!");
+          return;
+        }
       } else {
-        this.cart[index].quantity = newQuantity;
-        this.saveCart();
+        this.displayedCart[index].quantity = newQuantity;
+        this.displayedCart = [...this.displayedCart]; // Cập nhật để giao diện phản ánh thay đổi
+
+        // Nếu không phải "Mua Ngay", lưu vào localStorage
+        if (!this.isBuyNow) {
+          this.cart = [...this.displayedCart];
+          this.saveCart();
+        }
         alert(`Số lượng đã được cập nhật: ${newQuantity}`);
       }
     },
@@ -153,6 +166,7 @@ export default {
     confirmRemove(item) {
       if (confirm(`Bạn có chắc chắn muốn xóa "${item.name}" khỏi giỏ hàng không?`)) {
         this.cart = this.cart.filter((p) => p.id !== item.id);
+        this.displayedCart = [...this.cart]; // Cập nhật giỏ hàng hiển thị
         this.saveCart();
         alert("Sản phẩm đã được xóa!");
       }
@@ -165,6 +179,17 @@ export default {
       } catch (error) {
         console.error("Lỗi khi lưu giỏ hàng:", error);
         this.error = "Không thể lưu giỏ hàng. Vui lòng kiểm tra trình duyệt.";
+      }
+    },
+
+    async fetchProductById(productId) {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/api/products/${productId}/`);
+        return response.data;
+      } catch (error) {
+        console.error("Lỗi khi lấy sản phẩm:", error);
+        this.error = "Không thể lấy thông tin sản phẩm.";
+        return null;
       }
     },
 
@@ -209,7 +234,7 @@ export default {
           });
         }
 
-        for (const item of this.cart) {
+        for (const item of this.displayedCart) {
           await axios.post(
             "http://127.0.0.1:8000/api/cart-items/",
             {
@@ -252,7 +277,7 @@ export default {
         return;
       }
 
-      if (this.cart.length === 0) {
+      if (this.displayedCart.length === 0) {
         this.error = "Giỏ hàng của bạn đang trống!";
         return;
       }
@@ -262,7 +287,6 @@ export default {
 
       const token = localStorage.getItem("access_token");
       try {
-        // Tạo payload và chỉ thêm product_id nếu nó tồn tại
         const payload = {
           name: this.name,
           phone_number: this.phoneNumber,
@@ -270,7 +294,7 @@ export default {
           note: this.note,
           payment_method: this.paymentMethod,
         };
-        if (this.productId) {
+        if (this.isBuyNow && this.productId) {
           payload.product_id = this.productId;
         }
 
@@ -283,7 +307,9 @@ export default {
         );
 
         alert("Thanh toán thành công! Đơn hàng của bạn đã được tạo.");
-        localStorage.removeItem(`cart_${this.user.id}`);
+        if (!this.isBuyNow) {
+          localStorage.removeItem(`cart_${this.user.id}`);
+        }
         this.$router.push("/orders");
       } catch (error) {
         console.error("Lỗi khi thanh toán:", error.response?.data || error.message);
@@ -291,23 +317,32 @@ export default {
       }
     },
   },
-  created() {
+  async created() {
     this.user = JSON.parse(localStorage.getItem("user")) || null;
-    if (this.user) {
-      this.cart = JSON.parse(localStorage.getItem(`cart_${this.user.id}`)) || [];
-      this.name = this.user.username || "";
-      // Chuyển đổi productId thành số nguyên
-      this.productId = this.$route.params.productId ? parseInt(this.$route.params.productId) : null;
-      console.log("productId:", this.productId); // Debug giá trị productId
-      if (this.productId) {
-        const productInCart = this.cart.find(item => item.id === this.productId);
-        if (!productInCart) {
-          this.error = "Sản phẩm không có trong giỏ hàng!";
-        }
-      }
-    } else {
+    if (!this.user) {
       this.error = "Vui lòng đăng nhập để tiếp tục!";
       this.$router.push("/signin");
+      return;
+    }
+
+    this.cart = JSON.parse(localStorage.getItem(`cart_${this.user.id}`)) || [];
+    this.name = this.user.username || "";
+
+    // Kiểm tra xem có phải "Mua Ngay" không
+    this.isBuyNow = this.$route.query.buyNow === 'true';
+    this.productId = this.$route.query.productId ? parseInt(this.$route.query.productId) : null;
+
+    if (this.isBuyNow && this.productId) {
+      // Nếu là "Mua Ngay", lấy thông tin sản phẩm từ API
+      const product = await this.fetchProductById(this.productId);
+      if (product) {
+        this.displayedCart = [{ ...product, quantity: 1 }];
+      } else {
+        this.error = "Không thể tải sản phẩm để thanh toán!";
+      }
+    } else {
+      // Nếu không phải "Mua Ngay", sử dụng giỏ hàng từ localStorage
+      this.displayedCart = [...this.cart];
     }
   },
 };
