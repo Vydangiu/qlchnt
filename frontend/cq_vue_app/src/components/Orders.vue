@@ -23,21 +23,22 @@
           <i class="fa-solid fa-bag-shopping"></i>
         </a>
         <div v-if="user" class="user-info">
-          <a class="user-hello" style="font-size: 2rem; cursor: pointer;" @click="logout">
-            <i style="margin-top: 40px" class="fa-solid fa-user"></i>
-            <span style="font-size: 1rem; display: inline-flex;">Xin chào, {{ user.username }}</span>
+            <a class="user-hello" style="font-size: 2rem; cursor: pointer;" @click="logout">
+              <i style="margin-top: 40px" class="fa-solid fa-user"></i>
+              <span style="font-size: 1rem; display: inline-flex; margin-left: 5%;">Xin chào <br>
+                {{ user.username }}</span>
+            </a>
+          </div>
+          <a v-else style="font-size: 2rem; padding-bottom: 10px;" href="signin">
+            <i class="fa-solid fa-user"></i>
           </a>
-        </div>
-        <a v-else style="font-size: 2rem; padding-bottom: 10px;" href="/signin">
-          <i class="fa-solid fa-user"></i>
-        </a>
       </div>
     </div>
-    <div class="hamburger" @click="toggleMenu">☰</div>
+    
   </header>
 
   <div class="orders">
-    <h1>Danh sách đơn hàng của bạn</h1>
+   <h1 style="text-align: center; margin: 1rem auto;">Danh sách đơn hàng</h1>
 
     <!-- Debug: Hiển thị dữ liệu đơn hàng -->
     <!-- <pre v-if="orders.length">Dữ liệu đơn hàng: {{ orders }}</pre> -->

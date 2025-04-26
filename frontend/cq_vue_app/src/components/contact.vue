@@ -251,7 +251,7 @@ body{
   background-color: white;;
   border-radius: 15px;
   outline-color: white;
-  width: 35rem;
+  width: 30rem;
 
 
 }
@@ -259,7 +259,7 @@ body{
    border-style: none;
    border-radius: 15px;
    padding: 0 10px;
-   width: 30rem;
+   width: 25rem;
 }
 .icon-search{
    border-left: 2px solid #3333;

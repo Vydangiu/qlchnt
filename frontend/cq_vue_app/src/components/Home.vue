@@ -15,7 +15,8 @@
           <img class="logo" src="@/assets/IMG/logo1.jpg" alt="logo">
         </div>
         <div class="navbar-search">
-          <input type="text" v-model="navbarSearch" class="search-input" placeholder="Tìm kiếm" @keyup.enter="searchFromNavbar" />
+          <input type="text" v-model="navbarSearch" class="search-input" placeholder="Tìm kiếm"
+            @keyup.enter="searchFromNavbar" />
           <div class="icon-search">
             <a class="link" href="#" @click.prevent="searchFromNavbar">
               <i class="fa-solid fa-magnifying-glass"></i>
@@ -23,17 +24,18 @@
           </div>
         </div>
         <div class="navbar-cart-login-icon">
-          <a v-if="user" style="font-size: 2rem;" href="/cart">
+          <a style="font-size: 2rem;" href="/cart">
             <i class="fa-solid fa-bag-shopping"></i>
           </a>
           <!-- Thêm icon đơn hàng -->
-          <a v-if="user" style="font-size: 2rem;" href="/orders">
+          <a style="font-size: 2rem;" href="/orders">
             <i class="fa-solid fa-clipboard-list"></i>
           </a>
           <div v-if="user" class="user-info">
             <a class="user-hello" style="font-size: 2rem; cursor: pointer;" @click="logout">
               <i style="margin-top: 40px" class="fa-solid fa-user"></i>
-              <span style="font-size: 1rem; display: inline-flex; margin-left: 20%;">Xin chào, {{ user.username }}</span>
+              <span style="font-size: 1rem; display: inline-flex; margin-left: 5%;">Xin chào <br>
+                {{ user.username }}</span>
             </a>
           </div>
           <a v-else style="font-size: 2rem; padding-bottom: 10px;" href="signin">
@@ -41,7 +43,7 @@
           </a>
         </div>
       </div>
-      <div class="hamburger" @click="toggleMenu">☰</div>
+
     </header>
   </div>
   <main>
@@ -70,7 +72,10 @@
           <img class="img-demo" src="@/assets/IMG/ghe1.jpg" alt="Hình 1">
         </div>
         <div class="demo-product-item">
-          <div class="box"><h3> Moda Casa</h3> Nâng tầm phong cách sống với nội thất đẳng cấp, nơi mọi chi tiết đẳng cấp đều tạo nên sự khác biệt</div>
+          <div class="box">
+            <h3> Moda Casa</h3> Nâng tầm phong cách sống với nội thất đẳng cấp, nơi mọi chi tiết đẳng cấp đều tạo nên sự
+            khác biệt
+          </div>
         </div>
         <div class="demo-product-item">
           <img class="img-demo" src="@/assets/IMG/ghe2.jpg" alt="Hình 1">
@@ -132,7 +137,8 @@
         <div style="padding-left: 1.7rem;" class="side sidebar1">
           <p class="header-feature">Moda Casa</p>
           <p style="line-height: 30px; padding-top: 1rem;" class="text-header-feature">
-            Nội thất Moda Casa là thương hiệu đến từ Việt Nam với hơn 20 năm kinh nghiệm trong việc sản xuất và xuất khẩu nội thất đạt chuẩn quốc tế
+            Nội thất Moda Casa là thương hiệu đến từ Việt Nam với hơn 20 năm kinh nghiệm trong việc sản xuất và xuất
+            khẩu nội thất đạt chuẩn quốc tế
           </p>
         </div>
         <div class="side sidebar2">
@@ -277,7 +283,7 @@ export default {
 <style>
 .button-signup {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   text-decoration: underline;
 }
 
@@ -289,16 +295,19 @@ export default {
   cursor: pointer;
   font-weight: bold;
   border-radius: 5px;
-  margin-bottom: 10px;
+ 
 }
+
 .cart-button:hover {
   background-color: #ff4500;
 }
+
 .user-hello {
   display: inline;
-  position: absolute;
-  top: -70%;
+
+
 }
+
 main {
   padding-top: 50px;
 }
@@ -307,18 +316,23 @@ main {
   .navbar-search {
     display: none !important;
   }
+
   .search-input {
     display: none;
   }
+
   .navbar-cart-login-icon {
     display: none !important;
   }
+
   .navbar-logo {
     display: none;
   }
+
   main {
     padding-top: 200px;
   }
+
   .navbar-link {
     background-color: var(--color-primary);
     width: 100% !important;
@@ -328,10 +342,12 @@ main {
     right: 0;
     flex-wrap: wrap;
   }
+
   .navbar-link-item {
     flex-direction: column;
     align-items: center;
   }
+
   .navbar-link-item.active {
     display: flex;
   }
@@ -340,6 +356,7 @@ main {
 .banner {
   margin-top: 20px;
 }
+
 .slider {
   position: relative;
   max-width: 100%;
@@ -371,6 +388,7 @@ main {
 body {
   background-color: RGB(243, 238, 234);
 }
+
 :root {
   --color-primary: RGB(138, 99, 68);
   --background-color: RGB(216, 206, 199);
@@ -389,6 +407,7 @@ body {
   left: 0;
   width: 100%;
   z-index: 1000;
+  justify-content: space-evenly;
 }
 
 .product {
@@ -431,14 +450,14 @@ body {
   background-color: white;
   border-radius: 15px;
   outline-color: white;
-  width: 35rem;
+  width: 30rem;
 }
 
 .search-input {
   border-style: none;
   border-radius: 15px;
   padding: 0 10px;
-  width: 30rem;
+  width: 25rem;
 }
 
 .icon-search {

@@ -1,5 +1,8 @@
 {
   "devDependencies": {
-    "vite": "^6.2.3"
+    "vite": "^6.3.3"
+  },
+  "dependencies": {
+    "pinia": "^3.0.2"
   }
 }
