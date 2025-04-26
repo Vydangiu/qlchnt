@@ -24,14 +24,15 @@
         </a>
 
         <div v-if="user" class="user-info">
-          <a class="user-hello" style="font-size: 2rem; cursor: pointer;" @click="logout">
-            <i style="margin-top: 40px" class="fa-solid fa-user"></i>
-            <span style="font-size: 1rem; display: inline-flex; margin-left: -20px;">Xin chào, {{ user.username }}</span>
+            <a class="user-hello" style="font-size: 2rem; cursor: pointer;" @click="logout">
+              <i style="margin-top: 40px" class="fa-solid fa-user"></i>
+              <span style="font-size: 1rem; display: inline-flex; margin-left: 5%;">Xin chào <br>
+                {{ user.username }}</span>
+            </a>
+          </div>
+          <a v-else style="font-size: 2rem; padding-bottom: 10px;" href="signin">
+            <i class="fa-solid fa-user"></i>
           </a>
-        </div>
-        <a v-else style="font-size: 2rem; padding-bottom: 10px;" href="/signin">
-          <i class="fa-solid fa-user"></i>
-        </a>
       </div>
     </div>
     <div class="hamburger" @click="toggleMenu">☰</div>

@@ -49,9 +49,7 @@
   <main>
     <!-- banner -->
     <div class="banner">
-      <div class="button-signup">
-        <a href="">Signup</a>
-      </div>
+      
       <section class="slider">
         <div class="slides">
           <img v-show="currentSlide === 1" class="banner-1" src="@/assets/IMG/bann1.jpg" alt="Hình 1">
@@ -281,6 +279,10 @@ export default {
 </script>
 
 <style>
+ul{
+  padding: 0;
+
+}
 .button-signup {
   display: flex;
   justify-content: flex-start;
