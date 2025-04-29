@@ -16,7 +16,7 @@
                 <div style="display: flex; justify-content: space-between; padding: 0 28px" class="forgot">
                     
                     <a style="color: #807373; text-decoration: underline; font-size: 1rem;" href="signup">Đăng kí tài khoản</a>
-                    <a style="color: #807373; text-decoration: underline; font-size: 1rem;" href="/">đăng xuất</a>
+                    <a style="color: #807373; text-decoration: underline; font-size: 1rem;" href="/">Đăng xuất</a>
 
                 </div>
                 <div class="controls" style="margin-top: 20px;">
