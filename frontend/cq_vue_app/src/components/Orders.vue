@@ -172,7 +172,9 @@ export default {
         }));
 
         // Cập nhật thông tin khách hàng từ đơn hàng mới nhất
-        const latestOrder = this.orders[0];
+        const latestOrder = this.orders.reduce((latest, current) => {
+          return new Date(current.created_at) > new Date(latest.created_at) ? current : latest;
+          });
         this.customerInfo = {
           name: this.user.username || 'Chưa cung cấp',  // Hoặc this.user.first_name nếu bạn lưu tên trong đó
           phone_number: latestOrder.phone_number || 'Chưa cung cấp',
@@ -251,7 +253,9 @@ export default {
           }));
 
           // Cập nhật thông tin khách hàng dựa trên kết quả tìm kiếm
-          const latestOrder = this.orders[0];
+          const latestOrder = this.orders.reduce((latest, current) => {
+            return new Date(current.created_at) > new Date(latest.created_at) ? current : latest;
+          });
           this.customerInfo = {
             name: latestOrder.name || this.user.username || 'Chưa cung cấp',
             phone_number: latestOrder.phone_number || 'Chưa cung cấp',
