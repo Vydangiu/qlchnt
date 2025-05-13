@@ -416,22 +416,27 @@ from store.models import Cart, CartItem, Order, Product
 
 
 
-
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
+    # Override the get_queryset method to filter orders for the logged-in user
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
 
+    # Checkout action to create an order from checkout data
     @action(detail=False, methods=['post'], serializer_class=CheckoutSerializer)
     def checkout(self, request):
-        # Gọi serializer để validate + create Order theo logic bạn đã viết
+        # Initialize the serializer with the incoming data and the request context
         serializer = self.get_serializer(data=request.data, context={'request': request})
+        
+        # Validate and create the order
         serializer.is_valid(raise_exception=True)
         order = serializer.save()
 
-        # Trả về Order đầy đủ theo OrderSerializer
-        out = OrderSerializer(order, context={'request': request})
-        return Response(out.data, status=status.HTTP_201_CREATED)
+        # Serialize the created order to include it in the response
+        order_serializer = OrderSerializer(order, context={'request': request})
+        
+        # Return the order details including the shipping address and phone number
+        return Response(order_serializer.data, status=status.HTTP_201_CREATED)

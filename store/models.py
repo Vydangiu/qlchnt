@@ -185,8 +185,8 @@ class Order(models.Model):
         ('cancelled', 'Cancelled'),
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    shipping_address = models.TextField()
-    # shipping_address = models.TextField(null=True, blank=True)
+    shipping_address = models.TextField(null=True, blank=True)
+    phone_number = models.CharField(max_length=20, default="Chưa cung cấp")  # Trường số điện thoại
     payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='cod')
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
@@ -198,3 +198,4 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
+

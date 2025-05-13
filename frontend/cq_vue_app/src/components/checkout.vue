@@ -57,11 +57,11 @@
           />
         </div>
         <div class="form-group">
-          <label for="phone_number">Số điện thoại:</label>
+          <label for="phone">Số điện thoại:</label>
           <input
             type="tel"
-            id="phone_number"
-            v-model="phoneNumber"
+            id="phone"
+            v-model="phone"
             placeholder="Nhập số điện thoại"
             required
           />
@@ -111,7 +111,7 @@ export default {
       displayedCart: [], // Giỏ hàng hiển thị (có thể từ localStorage hoặc buyNow)
       user: null,
       name: "",
-      phoneNumber: "",
+      phone: "",
       shippingAddress: "",
       note: "",
       paymentMethod: "cod",
@@ -254,68 +254,77 @@ export default {
     },
 
     async confirmCheckout() {
-      this.error = null;
+  this.error = null;
 
-      if (!this.user) {
-        this.error = "Vui lòng đăng nhập để thanh toán!";
-        this.$router.push("/signin");
-        return;
+  // Kiểm tra các trường bắt buộc
+  if (!this.user) {
+    this.error = "Vui lòng đăng nhập để thanh toán!";
+    this.$router.push("/signin");
+    return;
+  }
+
+  if (!this.name.trim()) {
+    this.error = "Vui lòng nhập tên người nhận!";
+    return;
+  }
+
+  if (!this.phone.trim()) {
+    this.error = "Vui lòng nhập số điện thoại!";
+    return;
+  }
+
+  if (!this.shippingAddress.trim()) {
+    this.error = "Vui lòng nhập địa chỉ giao hàng!";
+    return;
+  }
+
+  if (this.displayedCart.length === 0) {
+    this.error = "Giỏ hàng của bạn đang trống!";
+    return;
+  }
+
+  const synced = await this.syncCartWithBackend();
+  if (!synced) return;
+
+  const token = localStorage.getItem("access_token");
+  try {
+    const payload = {
+      name: this.name,
+      phone_number: this.phone,  // Đảm bảo sử dụng phone_number
+      shipping_address: this.shippingAddress,
+      note: this.note,
+      payment_method: this.paymentMethod,
+    };
+    if (this.isBuyNow && this.productId) {
+      payload.product_id = this.productId;
+    }
+
+    const response = await axios.post(
+      "http://127.0.0.1:8000/api/orders/checkout/",
+      payload,
+      {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       }
+    );
 
-      if (!this.name.trim()) {
-        this.error = "Vui lòng nhập tên người nhận!";
-        return;
-      }
+    // Lưu thông tin khách hàng vào localStorage
+    const customerInfo = {
+      name: this.name,
+      phone: this.phone,
+      shipping_address: this.shippingAddress,
+    };
+    localStorage.setItem(`customer_info_${this.user.id}`, JSON.stringify(customerInfo));
 
-      if (!this.phoneNumber.trim()) {
-        this.error = "Vui lòng nhập số điện thoại!";
-        return;
-      }
-
-      if (!this.shippingAddress.trim()) {
-        this.error = "Vui lòng nhập địa chỉ giao hàng!";
-        return;
-      }
-
-      if (this.displayedCart.length === 0) {
-        this.error = "Giỏ hàng của bạn đang trống!";
-        return;
-      }
-
-      const synced = await this.syncCartWithBackend();
-      if (!synced) return;
-
-      const token = localStorage.getItem("access_token");
-      try {
-        const payload = {
-          name: this.name,
-          phone_number: this.phoneNumber,
-          shipping_address: this.shippingAddress,
-          note: this.note,
-          payment_method: this.paymentMethod,
-        };
-        if (this.isBuyNow && this.productId) {
-          payload.product_id = this.productId;
-        }
-
-        const response = await axios.post(
-          "http://127.0.0.1:8000/api/orders/checkout/",
-          payload,
-          {
-            headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-          }
-        );
-
-        alert("Thanh toán thành công! Đơn hàng của bạn đã được tạo.");
-        if (!this.isBuyNow) {
-          localStorage.removeItem(`cart_${this.user.id}`);
-        }
-        this.$router.push("/orders");
-      } catch (error) {
-        console.error("Lỗi khi thanh toán:", error.response?.data || error.message);
-        this.error = error.response?.data?.detail || "Có lỗi xảy ra khi thanh toán.";
-      }
-    },
+    alert("Thanh toán thành công! Đơn hàng của bạn đã được tạo.");
+    if (!this.isBuyNow) {
+      localStorage.removeItem(`cart_${this.user.id}`);
+    }
+    this.$router.push("/orders");
+  } catch (error) {
+    console.error("Lỗi khi thanh toán:", error.response?.data || error.message);
+    this.error = error.response?.data?.detail || "Có lỗi xảy ra khi thanh toán.";
+  }
+}
   },
   async created() {
     this.user = JSON.parse(localStorage.getItem("user")) || null;

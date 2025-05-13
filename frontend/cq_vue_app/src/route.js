@@ -94,6 +94,8 @@ import Users from '@/components/Users.vue'
 import AdminProductList from '@/components/AdminProductList.vue'
 import Login from './components/Login.vue'
 import Checkout from './components/checkout.vue'
+import AdminOrders from './components/AdminOrders.vue'; // Sửa import từ AdminOrdersView thành AdminOrders
+import OrderDetail from './components/OrderDetail.vue';
 
 const routes = [
     // --- Khách hàng ---
@@ -152,6 +154,19 @@ const routes = [
 
     // export default router
     // Admin routes
+    {
+        path: '/admin/orders',
+        name: 'AdminOrders',
+        component: AdminOrders,
+        meta: { requiresAuth: true, requiresAdmin: true }, // Yêu cầu đăng nhập và vai trò admin
+      },
+
+      {
+        path: '/admin/orders/:id',
+        name: 'AdminOrderDetail',
+        component: OrderDetail,
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
     {
         path: '/admin/dashboard',
         name: 'Dashboard',
